@@ -1,0 +1,29 @@
+#!/bin/sh
+
+PATCHDIR="${1:-${0%/*}}"
+DIR="${2:-.}"
+ACTION=${3:-apply}
+
+[ -d $DIR ] || {
+  echo "usage: $0 <android_build_dir>"
+  exit 1
+}
+echo "Applying patches from $PATCHDIR to $DIR/ ..."
+
+#./hardware/imx/0001-add-sgtl5000-codec-support.patch
+for p in $(cd $PATCHDIR; find * -type f -name *.patch -print); do
+  file="${p##*/}"
+  path="${p%/*}"
+  echo "$p: file='$file' path='$path'"
+	case $ACTION in
+		apply)
+			patch -d $DIR/$path -p1 $PARGS < $PATCHDIR/$path/$file
+			;;
+		revert)
+			patch -d $DIR/$path -p1 $PARGS --reverse < $PATCHDIR/$path/$file
+			;;
+		*)
+			(cd $DIR/$path; git status)
+			;;
+	esac
+done
