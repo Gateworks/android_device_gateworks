@@ -1,0 +1,26 @@
+Build u-boot.imx instead of u-boot.bin
+
+diff --git a/Makefile b/Makefile
+index 268d285..9a4f358 100644
+--- a/Makefile
++++ b/Makefile
+@@ -742,7 +742,7 @@ ifneq ($(strip $(TARGET_BOOTLOADER_CONFIG)),)
+ BOOTLOADER_CROSS_TOOLCHAIN := `pwd`/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-
+ BOOTLOADER_ENV := ARCH=arm CROSS_COMPILE=$(BOOTLOADER_CROSS_TOOLCHAIN)
+ HOST_PROCESSOR := $(shell cat /proc/cpuinfo | grep processor | wc -l)
+-TARGET_BOOTLOADER_IMAGE := $(PRODUCT_OUT)/u-boot.bin
++TARGET_BOOTLOADER_IMAGE := $(PRODUCT_OUT)/u-boot.imx
+ 
+ BOOTLOADER_PATH := bootable/bootloader/uboot-imx/
+ BOOTLOADER_CONFIG_FILE := $(BOOTLOADER_PATH)/include/config.h
+@@ -756,8 +756,8 @@ $(TARGET_BOOTLOADER_IMAGE):
+ 		$(MAKE) -C bootable/bootloader/uboot-imx/ distclean $(BOOTLOADER_ENV); \
+ 		$(MAKE) -C bootable/bootloader/uboot-imx/ $$UBOOT_CONFIG $(BOOTLOADER_ENV); \
+ 		$(MAKE) -C bootable/bootloader/uboot-imx/ $(BOOTLOADER_ENV); \
+-		install -D bootable/bootloader/uboot-imx/u-boot.bin $(PRODUCT_OUT)/u-boot-$$UBOOT_PLATFORM.bin; \
+-		install -D bootable/bootloader/uboot-imx/u-boot.bin $@; \
++		install -D bootable/bootloader/uboot-imx/u-boot.imx $(PRODUCT_OUT)/u-boot-$$UBOOT_PLATFORM.imx; \
++		install -D bootable/bootloader/uboot-imx/u-boot.imx $@; \
+ 	done
+ else
+ bootloader:
