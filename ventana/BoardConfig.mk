@@ -15,7 +15,14 @@ else
 TARGET_KERNEL_DEFCONF := gwventana_android_defconfig
 endif
 TARGET_KERNEL_MODULES := \
-  kernel_imx/drivers/net/sky2.ko:system/lib/modules/sky2.ko
+  kernel_imx/drivers/net/sky2.ko:system/lib/modules/sky2.ko \
+  kernel_imx/net/wireless/cfg80211.ko:system/lib/modules/cfg80211.ko \
+  kernel_imx/net/mac80211/mac80211.ko:system/lib/modules/mac80211.ko \
+  kernel_imx/drivers/net/wireless/ath/ath.ko:system/lib/modules/ath.ko \
+  kernel_imx/drivers/net/wireless/ath/ath5k/ath5k.ko:system/lib/modules/ath5k.ko \
+  kernel_imx/drivers/net/wireless/ath/ath9k/ath9k_hw.ko:system/lib/modules/ath9k_hw.ko \
+  kernel_imx/drivers/net/wireless/ath/ath9k/ath9k_common.ko:system/lib/modules/ath9k_common.ko \
+  kernel_imx/drivers/net/wireless/ath/ath9k/ath9k.ko:system/lib/modules/ath9k.ko
 
 
 #
