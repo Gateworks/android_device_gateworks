@@ -14,7 +14,8 @@ TARGET_KERNEL_DEFCONF := $(DEFCONF)
 else
 TARGET_KERNEL_DEFCONF := gwventana_android_defconfig
 endif
-TARGET_KERNEL_MODULES :=
+TARGET_KERNEL_MODULES := \
+  kernel_imx/drivers/net/sky2.ko:system/lib/modules/sky2.ko
 
 
 #
