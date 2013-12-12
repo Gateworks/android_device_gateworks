@@ -12,7 +12,7 @@ include device/fsl/imx6/BoardConfigCommon.mk
 ifneq ($(DEFCONF),)
 TARGET_KERNEL_DEFCONF := $(DEFCONF)
 else
-TARGET_KERNEL_DEFCONF := imx6_android_defconfig
+TARGET_KERNEL_DEFCONF := gwventana_android_defconfig
 endif
 TARGET_KERNEL_MODULES :=
 
