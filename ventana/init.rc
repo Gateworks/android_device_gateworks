@@ -60,7 +60,7 @@ on boot
 
     # Set the density to 160dpi, default 128dpi is not good
     setprop ro.sf.lcd_density 160
-# change for FSL specific service
+    # change for FSL specific service
     chown root system /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
     chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
     chown root system /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
@@ -96,40 +96,63 @@ on boot
     setprop hw.nopm true
 
     # No bluetooth hardware present
-    setprop wlan.interface wlan0
+    #setprop wlan.interface wlan0
+
+    # wifi
     setprop wifi.interface wlan0
+    setprop wlan.driver.status "ok"
+
+    # RFKILL
+    # re-enable radio (they get disabled in fsl/imx6.rc)
+    write /sys/class/rfkill/rfkill0/state 1
 
     # initialize CAN bus
     ip link set can0 type can bitrate 500000 triple-sampling on
     ifconfig can0 up
 
-# mount the debugfs
+    # wpa supplicant
+    symlink /dev/socket/wpa_wlan0 /data/system/wpa_supplicant/wlan0
+
+    # mount the debugfs
     mount debugfs none /sys/kernel/debug/
 
-# wpa_supplicant and dhcp daemon
-service wpa_supplicant /system/bin/logwrapper /system/bin/wpa_supplicant -iwlan0 -Dnl80211 -dd -c/data/misc/wifi/wpa_supplicant.conf
+# p2p supplicant
+service p2p_supplicant /system/bin/logwrapper /system/bin/wpa_supplicant \
+    -ip2p0 -Dnl80211 -c/data/misc/wifi/p2p_supplicant.conf -N \
+    -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf
+    disabled
+    oneshot
+
+# wpa_supplicant
+service wpa_supplicant /system/bin/logwrapper /system/bin/wpa_supplicant \
+    -iwlan0 -Dnl80211 -dd -c/data/misc/wifi/wpa_supplicant.conf
     socket wpa_wlan0 dgram 660 wifi wifi
+    disabled
+    oneshot
+
+# dhcp daemon
+service dhcpcd_wlan0 /system/bin/logwrapper /system/bin/dhcpcd -ABKL
     class late_start
     disabled
     oneshot
 
 on fs
-# mount ext4 partitions
+    # mount ext4 partitions
     mount_all /fstab.freescale
-# eth1
+    # eth1
     insmod /system/lib/modules/sky2.ko
-# wireless
+    # wireless
     insmod /system/lib/modules/compat.ko
     insmod /system/lib/modules/cfg80211.ko
     insmod /system/lib/modules/mac80211.ko
-# atheros
+    # atheros
     insmod /system/lib/modules/ath.ko
-# ath5k
+    # ath5k
     insmod /system/lib/modules/ath5k.ko
-# ath9k
+    # ath9k
     insmod /system/lib/modules/ath9k_hw.ko
     insmod /system/lib/modules/ath9k_common.ko
     insmod /system/lib/modules/ath9k.ko
-# ath10k
+    # ath10k
     insmod /system/lib/modules/ath10k_core.ko
     insmod /system/lib/modules/ath10k_pci.ko

@@ -14,6 +14,7 @@ TARGET_KERNEL_DEFCONF := $(DEFCONF)
 else
 TARGET_KERNEL_DEFCONF := gwventana_android_defconfig
 endif
+
 TARGET_KERNEL_MODULES := \
   kernel_imx/drivers/net/sky2.ko:system/lib/modules/sky2.ko \
   kernel_imx/net/wireless/cfg80211.ko:system/lib/modules/cfg80211.ko \
@@ -77,8 +78,12 @@ endif
 #
 # Wireless
 #
-BOARD_HAVE_WIFI := false
-BOARD_WLAN_DEVICE            := ""
+BOARD_WPA_SUPPLICANT_DRIVER      := NL80211
+WPA_SUPPLICANT_VERSION           := VER_0_8_X
+BOARD_WLAN_DEVICE                := wl12xx_mac80211
+BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_wl12xx
+SKIP_WPA_SUPPLICANT_RTL          := y
+SKIP_WPA_SUPPLICANT_CONF         := y
 
 
 #
