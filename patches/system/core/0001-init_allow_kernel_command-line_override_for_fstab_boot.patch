@@ -1,0 +1,108 @@
+init: allow kernel command-line for mount
+
+Replace $BD encountered in fstab with android.bootdev kernel cmdline 
+property to allow a flexible boot device.
+
+https://github.com/boundarydevices/android_system_core/commit/c3136fff4ede00b11394ed42bb52dbb9b3af670e
+
+Signed-off-by: Eric Nelson <eric.nelson@boundarydevices.com>
+
+diff --git a/fs_mgr/fs_mgr.c b/fs_mgr/fs_mgr.c
+index fecc556..64e06eb 100644
+--- a/fs_mgr/fs_mgr.c
++++ b/fs_mgr/fs_mgr.c
+@@ -272,6 +272,56 @@ static char *fs_getline(char *buf, int size, FILE *file)
+     }
+ }
+ 
++static char const boot_device_preamble[] = {
++	"/dev/block/platform/"
++};
++
++static char const boot_device_trailer[] = {
++	"/by-num/p"
++};
++
++static char const *boot_device_base=0;
++static unsigned boot_device_base_len=0;
++static char const boot_device_default[] = {
++	"sdhci-esdhc-imx.2"
++};
++
++static char const *get_boot_device_base(void){
++	if (0 == boot_device_base) {
++		boot_device_base = getenv("androidboot.bootdev");
++		if (!boot_device_base)
++			boot_device_base = boot_device_default;
++			boot_device_base_len = strlen(boot_device_base);
++			INFO("boot device base == %s\n", __func__, boot_device_base);
++	}
++	return boot_device_base;
++}
++
++static char *get_boot_device(char const *fstab_entry)
++{
++	if(!strncmp("$BD",fstab_entry,3)){
++		char const *bootdev = get_boot_device_base();
++		unsigned len=sizeof(boot_device_preamble)
++			+ boot_device_base_len
++			+ strlen(fstab_entry+3)
++			+ sizeof(boot_device_trailer)
++			+ 1;
++		char *rval = malloc(len);
++		char *nextout = rval;
++
++		memcpy(rval,boot_device_preamble,sizeof(boot_device_preamble)-1);
++		nextout = rval+sizeof(boot_device_preamble)-1;
++		memcpy(nextout,boot_device_base,boot_device_base_len);
++		nextout += boot_device_base_len;
++		memcpy(nextout,boot_device_trailer,sizeof(boot_device_trailer)-1);
++		nextout += sizeof(boot_device_trailer)-1;
++		strcpy(nextout,fstab_entry+3);
++		return rval;
++	} else {
++		return strdup(fstab_entry);
++	}
++}
++
+ struct fstab *fs_mgr_read_fstab(const char *fstab_path)
+ {
+     FILE *fstab_file;
+@@ -356,7 +406,7 @@ struct fstab *fs_mgr_read_fstab(const char *fstab_path)
+             ERROR("Error parsing mount source\n");
+             return 0;
+         }
+-        fstab->recs[cnt].blk_device = strdup(p);
++        fstab->recs[cnt].blk_device = get_boot_device(p);
+ 
+         if (!(p = strtok_r(NULL, delim, &save_ptr))) {
+             ERROR("Error parsing mount_point\n");
+diff --git a/init/builtins.c b/init/builtins.c
+index 0f9f131..faade39 100644
+--- a/init/builtins.c
++++ b/init/builtins.c
+@@ -457,6 +457,16 @@ exit_success:
+ 
+ }
+ 
++static void kernel_cmdline_to_env(char *name, int in_qemu)
++{
++	char *sep = strchr(name, '=');
++	ERROR("%s: %s\n", __func__, name);
++	if (sep) {
++		*sep = 0;
++		setenv(name,sep+1,0);
++	}
++}
++
+ int do_mount_all(int nargs, char **args)
+ {
+     pid_t pid;
+@@ -487,6 +497,7 @@ int do_mount_all(int nargs, char **args)
+         }
+     } else if (pid == 0) {
+         /* child, call fs_mgr_mount_all() */
++        import_kernel_cmdline(0, kernel_cmdline_to_env);
+         klog_set_level(6);  /* So we can see what fs_mgr_mount_all() does */
+         fstab = fs_mgr_read_fstab(args[1]);
+         child_ret = fs_mgr_mount_all(fstab);
