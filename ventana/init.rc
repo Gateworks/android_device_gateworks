@@ -89,7 +89,11 @@ on boot
     chown system system /sys/class/backlight/pwm-backlight.3/brightness
     chmod 0660 /sys/class/backlight/pwm-backlight.3/brightness
 
-    # No light sensor present
+    # emulate battery
+    setprop sys.emulated.battery 1
+
+    # disable PM (set to false to enable suspend/resume features)
+    setprop hw.nopm true
 
     # No bluetooth hardware present
     setprop wlan.interface wlan0
