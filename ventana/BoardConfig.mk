@@ -104,7 +104,7 @@ BOARD_HAVE_HARDWARE_GPS := false
 #
 # Sensors
 #
-BOARD_HAS_SENSOR := false
+BOARD_HAS_SENSOR := true
 
 
 # GPU

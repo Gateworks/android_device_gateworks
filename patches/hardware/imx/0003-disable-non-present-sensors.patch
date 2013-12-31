@@ -1,0 +1,22 @@
+The Gateworks Ventana boards do not have an orientation, ambient temperature
+or light sensor.
+diff --git a/libsensors/sensors.cpp b/libsensors/sensors.cpp
+index 4690d34..1d0ce80 100755
+--- a/libsensors/sensors.cpp
++++ b/libsensors/sensors.cpp
+@@ -74,6 +74,7 @@ static const struct sensor_t sSensorList[] = {
+           "Freescale Semiconductor Inc.",
+           1, SENSORS_MAGNETIC_FIELD_HANDLE,
+           SENSOR_TYPE_MAGNETIC_FIELD, 1500.0f, CONVERT_M, 0.50f, 100000, { } },
++#if 0
+         { "Freescale Orientation sensor",
+           "Freescale Semiconductor Inc.",
+           1, SENSORS_ORIENTATION_HANDLE,
+@@ -86,6 +87,7 @@ static const struct sensor_t sSensorList[] = {
+           "Intersil",
+           1, SENSORS_LIGHT_HANDLE,
+           SENSOR_TYPE_LIGHT, 16000.0f, 1.0f, 0.35f, 0, { } },
++#endif
+ };
+ 
+ 

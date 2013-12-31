@@ -89,8 +89,7 @@ PRODUCT_PACKAGES += \
 	camera.imx6				\
 	power.imx6				\
 	audio.r_submix.default			\
-	libbt-vendor				\
-	magd
+	libbt-vendor
 
 # Freescale VPU firmware files.
 PRODUCT_PACKAGES += \
