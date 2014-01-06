@@ -1,0 +1,20 @@
+diff --git a/libgps/athr_gps.c b/libgps/athr_gps.c
+index 2bf7c20..6857e8b 100755
+--- a/libgps/athr_gps.c
++++ b/libgps/athr_gps.c
+@@ -509,6 +509,15 @@ nmea_reader_update_latlong( NmeaReader*  r,
+     r->fix.flags    |= GPS_LOCATION_HAS_LAT_LONG;
+     r->fix.latitude  = lat;
+     r->fix.longitude = lon;
++
++		/* set horizontal accuracy (68% probability radius)
++		 * see http://developer.android.com/reference/android/location/Location.html#getAccuracy()
++		 * The W2SG0008 product breif claims an accuracy of 3m but the datasheet
++		 * claims with DGPS enabled accuracy could get down to 100 to 300cm.
++		 */
++		r->fix.accuracy = 3.0;
++		r->fix.flags   |= GPS_LOCATION_HAS_ACCURACY;
++
+     return 0;
+ }
+ 

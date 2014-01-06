@@ -20,7 +20,8 @@ PRODUCT_COPY_FILES += \
 	device/gateworks/ventana/required_hardware.xml:system/etc/permissions/required_hardware.xml \
 	device/gateworks/ventana/init.rc:root/init.freescale.rc \
 	device/gateworks/ventana/audio_policy.conf:system/etc/audio_policy.conf \
-	device/gateworks/ventana/audio_effects.conf:system/vendor/etc/audio_effects.conf
+	device/gateworks/ventana/audio_effects.conf:system/vendor/etc/audio_effects.conf \
+	device/gateworks/ventana/boardsetup.sh:system/etc/boardsetup.sh
 
 # GPU files
 
@@ -40,12 +41,12 @@ PRODUCT_COPY_FILES += \
 	frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
 	frameworks/native/data/etc/android.hardware.sensor.accelerometer.xml:system/etc/permissions/android.hardware.sensor.accelerometer.xml \
 	frameworks/native/data/etc/android.hardware.sensor.compass.xml:system/etc/permissions/android.hardware.sensor.compass.xml \
+	frameworks/native/data/etc/android.hardware.location.gps.xml:system/etc/permissions/android.hardware.location.gps.xml \
 
 #PRODUCT_COPY_FILES += \
 	frameworks/native/data/etc/android.hardware.wifi.direct.xml:system/etc/permissions/android.hardware.wifi.direct.xml \
 	frameworks/native/data/etc/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml \
 	frameworks/native/data/etc/android.hardware.sensor.light.xml:system/etc/permissions/android.hardware.sensor.light.xml \
-	frameworks/native/data/etc/android.hardware.location.gps.xml:system/etc/permissions/android.hardware.location.gps.xml \
 
 # for PDK build, include only when the dir exists
 # too early to use $(TARGET_BUILD_PDK)

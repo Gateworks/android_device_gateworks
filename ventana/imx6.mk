@@ -121,12 +121,7 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
 	gps.SABRESD				\
 	gps.ARM2				\
-	gps.SABREAUTO				\
-	Orion.ini 				\
-	AR1520A-Auto.img 			\
-	ingsvcd 				\
-	libOrionCtl.so 				\
-	OrionSys.so
+	gps.SABREAUTO
 
 # drm related lib
 PRODUCT_PACKAGES += \

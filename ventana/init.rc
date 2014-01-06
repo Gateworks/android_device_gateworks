@@ -23,7 +23,6 @@ on boot
     symlink /dev/mxs_viim /dev/mxc_mem
 
     setprop ro.kernel.android.gps /dev/gpsdevice
-    symlink /dev/ttymxc2 /dev/gpsdevice
 
     # Enable Tethering in the Settings
     setprop ro.tether.denied false
@@ -115,6 +114,13 @@ on boot
 
     # mount the debugfs
     mount debugfs none /sys/kernel/debug/
+
+# script to do some board-detection and board-specific setup
+service board-setup /system/bin/logwrapper /system/etc/boardsetup.sh
+    class late_start
+    user root
+    group root
+    oneshot
 
 # p2p supplicant
 service p2p_supplicant /system/bin/logwrapper /system/bin/wpa_supplicant \
