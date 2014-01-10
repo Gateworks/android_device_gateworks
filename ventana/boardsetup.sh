@@ -15,14 +15,18 @@ done
 
 echo "BOARD:$board"
 
+orientation=
 case "$board" in
 	GW54)
+		orientation=0
 		gps_device=/dev/ttymxc4
 		;;
 	GW53)
+		orientation=3
 		gps_device=/dev/ttymxc4
 		;;
 	GW52)
+		orientation=3
 		gps_device=/dev/ttymxc4
 		;;
 	GW51)
@@ -32,6 +36,11 @@ case "$board" in
 		echo "unknown board: $board"
 		;;
 esac
+
+# Accelerometer/Magnetometer physical orientation
+[ "$orientation" ] && {
+	echo $orientation > /sys/devices/virtual/input/input0/position
+}
 
 # GPS configuration
 gps_present=1
