@@ -78,15 +78,12 @@ PRODUCT_PACKAGES += \
 
 # imx6 Hardware HAL libs.
 PRODUCT_PACKAGES += \
-	sensors.SABRESD				\
-	sensors.ARM2				\
-	sensors.SABREAUTO			\
+	sensors.ventana \
 	overlay.imx6				\
 	lights.imx6				\
 	gralloc.imx6				\
 	copybit.imx6				\
 	hwcomposer.imx6				\
-	camera.imx6				\
 	power.imx6				\
 	audio.r_submix.default			\
 	libbt-vendor
@@ -119,9 +116,7 @@ PRODUCT_PACKAGES += \
 
 # gps related lib
 PRODUCT_PACKAGES += \
-	gps.SABRESD				\
-	gps.ARM2				\
-	gps.SABREAUTO
+	gps.ventana
 
 # drm related lib
 PRODUCT_PACKAGES += \
