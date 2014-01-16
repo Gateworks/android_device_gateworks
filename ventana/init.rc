@@ -116,7 +116,7 @@ on boot
     mount debugfs none /sys/kernel/debug/
 
 # script to do some board-detection and board-specific setup
-service board-setup /system/bin/logwrapper /system/etc/boardsetup.sh
+service board-setup /system/bin/logwrapper /system/etc/init.goldfish.sh
     class late_start
     user root
     group root

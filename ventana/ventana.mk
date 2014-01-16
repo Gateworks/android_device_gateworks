@@ -21,7 +21,7 @@ PRODUCT_COPY_FILES += \
 	device/gateworks/ventana/init.rc:root/init.freescale.rc \
 	device/gateworks/ventana/audio_policy.conf:system/etc/audio_policy.conf \
 	device/gateworks/ventana/audio_effects.conf:system/vendor/etc/audio_effects.conf \
-	device/gateworks/ventana/boardsetup.sh:system/etc/boardsetup.sh
+	device/gateworks/ventana/init.goldfish.sh:system/etc/init.goldfish.sh
 
 # GPU files
 
