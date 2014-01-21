@@ -38,17 +38,44 @@ done
 
 test -n "$fs"    || fs=ext2
 test -n "$disk"  || disk=0
-test -n "$dtype" || dtype=mmc
 
-if ${fs}load usb ${disk}:1 10800000 boot/uImage ; then
-  dtype=usb
-  bootdev=fsl-ehci.1
-elif ${fs}load mmc ${disk}:1 10800000 boot/uImage; then
-  dtype=mmc
-  bootdev=sdhci-esdhc-imx.2
-elif ${fs}load sata ${disk}:1 10800000 boot/uImage; then
-  dtype=sata
-  bootdev=ahci.0
+if test -n "$dtype" ; then
+	echo "booting from $dtype"
+else
+	echo "Detecting boot device (dtype)..."
+	if ${fs}load usb ${disk}:1 10800000 boot/uImage ; then
+		dtype=usb
+	elif ${fs}load mmc ${disk}:1 10800000 boot/uImage ; then
+		dtype=mmc
+	elif ${fs}load sata ${disk}:1 10800000 boot/uImage ; then
+		dtype=sata
+	fi
+	echo "dtype:$dtype"
+fi
+if test -n "$bootdev" ; then
+	echo "Using androidboot.bootdev=$bootdev"
+else
+	if itest.s "x${dtype}" == "xusb" ; then
+		if test -n "$usbdevport" ; then
+			bootdev=fsl-ehci.${usbdevport}
+			if itest "${usbdevport}" == 0 ; then
+				echo "USB0: OTG"
+			elif itest "${usbdevport}" == 1 ; then
+				echo "USB1: EHCI"
+			else
+				echo "Unsuported USB host controller:$usbdevport"
+			fi
+		else
+			bootdev=fsl-ehci.1
+		fi
+	elif itest.s "x${dtype}" == "xmmc" ; then
+		bootdev=sdhci-esdhc-imx.2
+	elif itest.s "x${dtype}" == "xsata" ; then
+		bootdev=ahci.0
+	else
+		echo "Unsupported dtype:${dtype}"
+	fi
+	echo "androidboot.bootdev=$bootdev"
 fi
 
 setenv bootargs $bootargs androidboot.hardware=freescale androidboot.bootdev=$bootdev ${extra}
