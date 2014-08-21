@@ -34,12 +34,7 @@ TARGET_KERNEL_MODULES := \
 #
 TARGET_BOOTLOADER_BOARD_NAME := ventana
 PRODUCT_MODEL := Gateworks Ventana
-TARGET_BOOTLOADER_CONFIG := \
-	gw54xx:gwventanaq1g_config \
-	gw53xx:gwventanadl1g_config \
-	gw52xx:gwventanadl_config \
-	gw51xx:gwventanadl_config
-
+TARGET_BOOTLOADER_CONFIG := gwventana_config
 
 #
 # Filesystem
