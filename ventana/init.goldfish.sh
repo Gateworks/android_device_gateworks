@@ -1,5 +1,18 @@
 #!/system/bin/sh
 
+#
+# board-specific initialization requires some scripting intelligence not
+# supported by Androids init system syntax. Therefore we run this script
+# as a one-shot from Androids init-system at late_start.
+#
+# board-specific details handled here:
+#  - DIO<n> gpio abstraction via gpio.dio<n> properties
+#  - DIO<n> gpio sysfs permissions
+#  - GPS UART device specification
+#  - initial GPS configuration
+#  - accelerometer orientation adjustment
+#
+
 # get board from cmdline
 for x in `cat /proc/cmdline`; do
   [[ $x = androidboot.board=* ]] || continue
@@ -13,7 +26,8 @@ done
 		busybox head -1 | busybox cut -c62-65`
 }
 
-echo "BOARD:$board"
+pre="${0##*/}"
+echo "$pre: Board: ${board}xx" > /dev/console
 
 orientation=
 case "$board" in
@@ -53,7 +67,7 @@ case "$board" in
 		setprop gpio.dio3 20
 		;;
 	*)
-		echo "unknown board: $board"
+		echo "$pre: unknown board: $board" > /dev/console
 		;;
 esac
 
@@ -66,6 +80,8 @@ esac
 		[ "$name" = "FreescaleAccelerometer" ] && {
 			echo $orientation \
 			  > /sys/devices/virtual/input/input${i}/position
+			echo "$pre: Accelerometer input{$i} pos$orientation" \
+			  > /dev/console
 		}
 		i=$((i+1))
 	done
@@ -74,6 +90,7 @@ esac
 # GPS configuration
 gps_present=1
 [ $gps_present ] && {
+	echo "$pre: GPS UART: $gps_device" > /dev/console
 	ln -s $gps_device /dev/gpsdevice
 	# set gps baudrate to 115200
 	busybox stty -F /dev/gpsdevice 4800
@@ -94,7 +111,7 @@ i=0
 while [ 1 ]; do
 	gpio=$(getprop gpio.dio${i})
 	[ "$gpio" ] || break
-
+	echo "$pre: MX6_DIO$i gpio$gpio" > /dev/console
 
 	# export
 	echo ${gpio} > /sys/class/gpio/export
