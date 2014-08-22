@@ -58,8 +58,17 @@ case "$board" in
 esac
 
 # Accelerometer/Magnetometer physical orientation
-[ "$orientation" ] && {
-	echo $orientation > /sys/devices/virtual/input/input0/position
+[ "$orientation" -a -d /sys/bus/i2c/devices/2-001e ] && {
+	i=0
+	while [ 1 ]; do
+		[ -d /sys/class/input/input${i} ] || break
+		name="$(cat /sys/class/input/input${i}/name)"
+		[ "$name" = "FreescaleAccelerometer" ] && {
+			echo $orientation \
+			  > /sys/devices/virtual/input/input${i}/position
+		}
+		i=$((i+1))
+	done
 }
 
 # GPS configuration
