@@ -117,12 +117,12 @@ mkdir /media/BOOT/boot
 # bootscripts, kernel, and ramdiskto ext4 BOOT
 sudo cp -rfv out/target/product/$product/uImage /media/BOOT/boot
 sudo cp -rfv out/target/product/$product/boot/* /media/BOOT/boot
-# bootscripts, kernel, and ramdisk-recovery.img to ext4 RECOVER
+# RECOVER: bootscripts, kernel, and ramdisk-recovery.img
 sudo cp -rfv out/target/product/$product/uImage /media/RECOVER/
-mkimage -A arm -O linux -C gzip -T ramdisk -n "android recovery" -d out/target/product/$product/ramdisk-recovery.img /media/RECOVER/uramdisk-recovery.img
-# application data to ext4 DATA
+sudo cp -rfv out/target/product/$product/uramdisk-recovery.img /media/RECOVER/
+# DATA: application data
 sudo cp -ravf out/target/product/$product/data/* /media/DATA/
-# system image (ext4) to SYSTEM (copied as image)
+# SYSTEM: system image
 sudo dd if=out/target/product/$product/system.img of=${diskname}${prefix}5
 #cpio -i -F out/target/product/$product/system.img /media/SYSTEM/
 sudo e2label ${diskname}${prefix}5 SYSTEM
