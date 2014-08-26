@@ -51,7 +51,15 @@ PRODUCT_PACKAGES += \
 	taskset					\
 	sqlite3					\
 	libefence				\
-	powerdebug
+	powerdebug				\
+	i2c-tools				\
+	v4l2-ctl
+
+# CANbus utils
+PRODUCT_PACKAGES += \
+	candump					\
+	cansend					\
+	cangen
 
 # Wifi AP mode
 PRODUCT_PACKAGES += \
