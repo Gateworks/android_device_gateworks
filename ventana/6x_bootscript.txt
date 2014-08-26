@@ -6,8 +6,10 @@ if test -n "$tempfuse" ; then
 	setenv bootargs $bootargs thermal.fusedata=$tempfuse
 fi
 
+# detect displays in the following priority: LVDS, HDMI
 i2c dev 2
 if i2c probe 0x04 ; then
+	echo "Freescale MXC-LVDS1 detected: mxcfb${nextcon}";
 	setenv bootargs $bootargs video=mxcfb${nextcon}:dev=ldb,bpp=32,LDB-XGA,if=RGB666
 	if test "0" -eq $nextcon; then
 		setenv fbmem "fbmem=20M";
@@ -15,11 +17,21 @@ if i2c probe 0x04 ; then
 		setenv fbmem ${fbmem},20M
 	fi
 	setexpr nextcon $nextcon + 1
-else
-	echo "------ no Freescale display";
+fi
+
+if i2c probe 0x49 ; then
+	echo "AUO G070VW01 with TSC2007 detected: mxcfb${nextcon}";
+	setenv bootargs $bootargs video=mxcfb${nextcon}:dev=ldb,bpp=32,LDB-WVGA,if=RGB666
+	if test "0" -eq $nextcon; then
+		setenv fbmem "fbmem=20M";
+	else
+		setenv fbmem ${fbmem},20M
+	fi
+	setexpr nextcon $nextcon + 1
 fi
 
 if hdmidet ; then
+	echo "HDMI detected: mxcfb${nextcon}";
 	setenv bootargs $bootargs video=mxcfb${nextcon}:dev=hdmi,bpp=32,1280x720M@60,if=RGB24
 	if test "0" -eq $nextcon; then
 		setenv fbmem "fbmem=48M";
@@ -27,8 +39,6 @@ if hdmidet ; then
 		setenv fbmem ${fbmem},48M
 	fi
 	setexpr nextcon $nextcon + 1
-else
-	echo "------ no HDMI monitor";
 fi
 
 while test "4" -ne $nextcon ; do
@@ -36,9 +46,9 @@ while test "4" -ne $nextcon ; do
 	setexpr nextcon $nextcon + 1 ;
 done
 
+# boot disks
 test -n "$fs"    || fs=ext2
 test -n "$disk"  || disk=0
-
 if test -n "$dtype" ; then
 	echo "booting from $dtype"
 else
