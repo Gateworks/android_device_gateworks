@@ -109,6 +109,8 @@ mkfs.ext4 -L CACHE ${diskname}${prefix}6
 mkfs.ext4 -L VENDOR ${diskname}${prefix}7
 mkfs.ext4 -L MISC ${diskname}${prefix}8
 
+# some slower systems need a sleep here to let the host OS catch up
+sleep 10
 for n in 1 2 4 ; do
    udisks --mount ${diskname}${prefix}${n}
 done
