@@ -39,6 +39,8 @@ case "$board" in
 		setprop gpio.dio1 19
 		setprop gpio.dio2 41
 		setprop gpio.dio3 42
+		# CANbus
+		setprop gpio.can_stby 2
 		;;
 	GW53)
 		orientation=3
@@ -48,6 +50,8 @@ case "$board" in
 		setprop gpio.dio1 19
 		setprop gpio.dio2 17
 		setprop gpio.dio3 20
+		# CANbus
+		setprop gpio.can_stby 2
 		;;
 	GW52)
 		orientation=3
@@ -57,6 +61,8 @@ case "$board" in
 		setprop gpio.dio1 19
 		setprop gpio.dio2 17
 		setprop gpio.dio3 20
+		# CANbus
+		setprop gpio.can_stby 9
 		;;
 	GW51)
 		gps_device=/dev/ttymxc0
@@ -126,3 +132,21 @@ while [ 1 ]; do
 	chmod 0666 /sys/class/gpio/gpio${gpio}/direction
 	i=$((i+1))
 done
+
+# initialize CAN bus
+gpio=$(getprop gpio.can_stby)
+[ "$gpio" -a -d /sys/class/net/can0 ] && {
+	echo "$pre: Configuring CANbus for 500kbps CAN_STBY=gpio$gpio" \
+		> /dev/console
+	ip link set can0 type can bitrate 500000 triple-sampling on
+	ifconfig can0 up
+
+	# export CAN_STBY gpio
+	echo ${gpio} > /sys/class/gpio/export
+	# configure as output-low (enable transceiver)
+	echo out > /sys/class/gpio/gpio${gpio}/direction
+	echo 0 > /sys/class/gpio/gpio${gpio}/value
+	# allow all users to modify value
+	chown system.system /sys/class/gpio/gpio${gpio}/value
+	chmod 0666 /sys/class/gpio/gpio${gpio}/value
+}

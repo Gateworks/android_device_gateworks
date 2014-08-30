@@ -105,10 +105,6 @@ on boot
     # re-enable radio (they get disabled in fsl/imx6.rc)
     write /sys/class/rfkill/rfkill0/state 1
 
-    # initialize CAN bus
-    ip link set can0 type can bitrate 500000 triple-sampling on
-    ifconfig can0 up
-
     # wpa supplicant
     symlink /dev/socket/wpa_wlan0 /data/system/wpa_supplicant/wlan0
 
