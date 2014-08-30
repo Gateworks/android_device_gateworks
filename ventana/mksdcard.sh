@@ -115,10 +115,9 @@ for n in 1 2 4 ; do
    udisks --mount ${diskname}${prefix}${n}
 done
 
+# BOOT: bootscripts, kernel, and ramdisk
 mkdir /media/BOOT/boot
-# bootscripts, kernel, and ramdiskto ext4 BOOT
-sudo cp -rfv out/target/product/$product/uImage /media/BOOT/boot
-sudo cp -rfv out/target/product/$product/boot/* /media/BOOT/boot
+sudo cp -rfv out/target/product/$product/boot/* /media/BOOT/
 # RECOVER: bootscripts, kernel, and ramdisk-recovery.img
 sudo cp -rfv out/target/product/$product/uImage /media/RECOVER/
 sudo cp -rfv out/target/product/$product/uramdisk-recovery.img /media/RECOVER/
@@ -126,7 +125,6 @@ sudo cp -rfv out/target/product/$product/uramdisk-recovery.img /media/RECOVER/
 sudo cp -ravf out/target/product/$product/data/* /media/DATA/
 # SYSTEM: system image
 sudo dd if=out/target/product/$product/system.img of=${diskname}${prefix}5
-#cpio -i -F out/target/product/$product/system.img /media/SYSTEM/
 sudo e2label ${diskname}${prefix}5 SYSTEM
 
 sync && sudo umount ${diskname}${prefix}*
