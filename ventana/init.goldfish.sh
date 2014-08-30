@@ -30,6 +30,8 @@ pre="${0##*/}"
 echo "$pre: Board: ${board}xx" > /dev/console
 
 orientation=
+cvbs_in=
+hdmi_in=
 case "$board" in
 	GW54)
 		orientation=0
@@ -41,6 +43,9 @@ case "$board" in
 		setprop gpio.dio3 42
 		# CANbus
 		setprop gpio.can_stby 2
+		# Video Capture
+		hdmi_in=/dev/video0
+		cvbs_in=/dev/video1
 		;;
 	GW53)
 		orientation=3
@@ -52,6 +57,8 @@ case "$board" in
 		setprop gpio.dio3 20
 		# CANbus
 		setprop gpio.can_stby 2
+		# Video Capture
+		cvbs_in=/dev/video0
 		;;
 	GW52)
 		orientation=3
@@ -63,6 +70,8 @@ case "$board" in
 		setprop gpio.dio3 20
 		# CANbus
 		setprop gpio.can_stby 9
+		# Video Capture
+		cvbs_in=/dev/video0
 		;;
 	GW51)
 		gps_device=/dev/ttymxc0
@@ -71,11 +80,56 @@ case "$board" in
 		setprop gpio.dio1 19
 		setprop gpio.dio2 17
 		setprop gpio.dio3 20
+		# Video Capture
+		cvbs_in=/dev/video0
 		;;
 	*)
 		echo "$pre: unknown board: $board" > /dev/console
 		;;
 esac
+
+# Camera configuration
+# (landscape mode orient is 0, For portrait mode orient is 90)
+[ -r "${cvbs_in}" ] && {
+	state="$(v4l2-ctl -d ${cvbs_in} --get-standard | busybox head -n1 | busybox awk '{print $4}')"
+	case "$state" in
+		0x000000ff) state="PAL";;
+		0x0000b000) state="NTSC";;
+		*) state=;;
+	esac
+	echo "$pre: cvbs_in:${cvbs} state=${state}" > /dev/console
+	[ "$state" ] || cvbs_in=
+	state_cvbs=$state
+}
+[ -r "${hdmi_in}" ] && {
+	[ -d /sys/devices/platform/imx-i2c.2 ] && \
+		dir=/sys/devices/platform/imx-i2c.2/i2c-2/2-0048/
+	[ -d /sys/devices/soc0/soc.1/2100000.aips-bus/21a8000.i2c/ ] && \
+		dir=/sys/devices/soc0/soc.1/2100000.aips-bus/21a8000.i2c/i2c-2/2-0048
+	#state="$(cat $dir/state)"
+	#echo "$pre: hdmi_in:${hdmi_in} state=${state}" > /dev/console
+	[ "$state" = "locked" ] || hdmi_in=
+	state_hdmi=$state
+}
+setprop camera.disable_zsl_mode 1
+if [ "${cvbs_in}" -a "${hdmi_in}" ]; then
+	echo "Front Camera: ${state_cvbs} Analog In"
+	setprop front_camera_name adv7180_decoder
+	setprop front_camera_orient 0
+	echo "Front Camera: ${state_hdmi} HDMI In"
+	setprop back_camera_name tda1997x_video
+	setprop back_camera_orient 0
+elif [ "${cvbs_in}" ]; then
+	echo "Front Camera: ${state_cvbs} Analog In"
+	setprop front_camera_name adv7180_decoder
+	setprop front_camera_orient 0
+	#setprop back_camera_name uvc
+elif [ "${hdmi_in}" ]; then
+	echo "Front Camera: ${state_hdmi} HDMI In"
+	setprop front_camera_name tda1997x_video
+	setprop front_camera_orient 0
+	#setprop back_camera_name uvc
+fi
 
 # Accelerometer/Magnetometer physical orientation
 [ "$orientation" -a -d /sys/bus/i2c/devices/2-001e ] && {
