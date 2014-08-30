@@ -4,14 +4,6 @@
 $(call inherit-product, device/gateworks/ventana/imx6.mk)
 $(call inherit-product-if-exists,vendor/google/products/gms.mk)
 
-ifneq ($(wildcard device/gateworks/ventana/fstab_nand.freescale),)
-$(shell touch device/gateworks/ventana/fstab_nand.freescale)
-endif
-
-ifneq ($(wildcard device/gateworks/ventana/fstab.freescale),)
-$(shell touch device/gateworks/ventana/fstab.freescale)
-endif
-
 # Overrides
 PRODUCT_NAME := ventana
 PRODUCT_DEVICE := ventana
