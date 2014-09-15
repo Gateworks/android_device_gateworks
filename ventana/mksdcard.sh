@@ -126,6 +126,8 @@ sudo cp -ravf out/target/product/$product/data/* /media/DATA/
 # SYSTEM: system image
 sudo dd if=out/target/product/$product/system.img of=${diskname}${prefix}5
 sudo e2label ${diskname}${prefix}5 SYSTEM
+sudo e2fsck -f ${diskname}${prefix}5
+sudo resize2fs ${diskname}${prefix}5
 
 sync && sudo umount ${diskname}${prefix}*
 
