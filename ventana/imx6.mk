@@ -280,6 +280,7 @@ PRODUCT_PACKAGES += \
 	libruntime-ril-port
 
 PRODUCT_COPY_FILES +=	\
+	device/gateworks/common/input/tca8418_keypad.kl:system/usr/keylayout/tca8418_keypad.kl \
 	device/fsl/common/input/Dell_Dell_USB_Keyboard.kl:system/usr/keylayout/Dell_Dell_USB_Keyboard.kl \
 	device/fsl/common/input/Dell_Dell_USB_Keyboard.idc:system/usr/idc/Dell_Dell_USB_Keyboard.idc \
 	device/fsl/common/input/eGalax_Touch_Screen.idc:system/usr/idc/eGalax_Touch_Screen.idc \
