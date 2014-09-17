@@ -38,6 +38,28 @@ gpio() {
 	chmod 0666 /sys/class/gpio/gpio${num}/direction
 }
 
+# $1 device
+# $2 name
+# $3 output level
+led() {
+	local dev=$1
+	local name=$2
+	local output=$3
+
+	echo "$pre: led $dev: $name" > /dev/console
+	# allow all users to modify brightness
+	chown system.system /sys/class/leds/$dev/brightness
+	chmod 0666 /sys/class/leds/$dev/brightness
+
+	[ "$output" ] && echo $output > /sys/class/leds/$dev/brightness
+}
+
+# get board from cmdline
+for x in `cat /proc/cmdline`; do
+  [[ $x = androidboot.board=* ]] || continue
+  board="${x#androidboot.board=}"
+done
+
 # as fallback get from eeprom manually
 [ -z "$board" ] && {
 	board=`dd if=/sys/devices/platform/imx-i2c.0/i2c-0/0-0050/eeprom \
@@ -205,4 +227,22 @@ gpio=$(getprop gpio.can_stby)
 
 	# export CAN_STBY gpio and configure as output-low (enable)
 	gpio ${gpio} CAN_STBY 0
+}
+
+# GW16107 display adapter support
+[ -d /sys/bus/i2c/devices/2-0021 -a -d /sys/bus/i2c/devices/2-0049 ] && {
+	echo "$pre: Configuring GW16107 Display adapter" > /dev/console
+
+	gpio 249 LCD_3P3_EN 1
+	gpio 250 LCD_5P0_EN 1
+	gpio 248 VDD_12P0_EN 1
+	gpio 251 LCD_12P0_EN 1
+	gpio 10 LVDS_BACKLIGHT_EN 1
+
+	led pca9685-led0 keypad_backlight 255
+	led pca9685-led1 power_led_red 0
+	led pca9685-led2 power_led_blue 255
+	setprop hw.led.keypad_backlight pca9685-led0
+	setprop hw.led.power_led_red pca9685-led1
+	setprop hw.led.power_led_blue pca9685-led2
 }
