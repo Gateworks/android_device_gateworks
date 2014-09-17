@@ -13,11 +13,30 @@
 #  - accelerometer orientation adjustment
 #
 
-# get board from cmdline
-for x in `cat /proc/cmdline`; do
-  [[ $x = androidboot.board=* ]] || continue
-  board="${x#androidboot.board=}"
-done
+# $1 number
+# $2 name
+# $3 output level (if not input)
+gpio() {
+	local num=$1
+	local name=$2
+	local output=$3
+
+	echo "$pre: gpio$num: $name" > /dev/console
+	[ -d /sys/class/gpio/gpio$num ] || {
+		echo $num > /sys/class/gpio/export
+	}
+	[ "$output" ] && {
+		echo out > /sys/class/gpio/gpio$num/direction
+		echo $output > /sys/class/gpio/gpio$num/value
+	}
+
+	# allow all users to modify value
+	chown system.system /sys/class/gpio/gpio${num}/value
+	chmod 0666 /sys/class/gpio/gpio${num}/value
+	# allow all users to modify direction
+	chown system.system /sys/class/gpio/gpio${num}/direction
+	chmod 0666 /sys/class/gpio/gpio${num}/direction
+}
 
 # as fallback get from eeprom manually
 [ -z "$board" ] && {
@@ -171,19 +190,8 @@ i=0
 while [ 1 ]; do
 	gpio=$(getprop gpio.dio${i})
 	[ "$gpio" ] || break
-	echo "$pre: MX6_DIO$i gpio$gpio" > /dev/console
-
-	# export
-	echo ${gpio} > /sys/class/gpio/export
-	# configure as output-low
-	echo out > /sys/class/gpio/gpio${gpio}/direction
-	echo 0 > /sys/class/gpio/gpio${gpio}/value
-	# allow all users to modify value
-	chown system.system /sys/class/gpio/gpio${gpio}/value
-	chmod 0666 /sys/class/gpio/gpio${gpio}/value
-	# allow all users to modify direction
-	chown system.system /sys/class/gpio/gpio${gpio}/direction
-	chmod 0666 /sys/class/gpio/gpio${gpio}/direction
+	# export and configure as input
+	gpio ${gpio} MX6_DIO${i}
 	i=$((i+1))
 done
 
@@ -195,12 +203,6 @@ gpio=$(getprop gpio.can_stby)
 	ip link set can0 type can bitrate 500000 triple-sampling on
 	ifconfig can0 up
 
-	# export CAN_STBY gpio
-	echo ${gpio} > /sys/class/gpio/export
-	# configure as output-low (enable transceiver)
-	echo out > /sys/class/gpio/gpio${gpio}/direction
-	echo 0 > /sys/class/gpio/gpio${gpio}/value
-	# allow all users to modify value
-	chown system.system /sys/class/gpio/gpio${gpio}/value
-	chmod 0666 /sys/class/gpio/gpio${gpio}/value
+	# export CAN_STBY gpio and configure as output-low (enable)
+	gpio ${gpio} CAN_STBY 0
 }
