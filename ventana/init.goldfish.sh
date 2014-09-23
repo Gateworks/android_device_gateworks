@@ -12,6 +12,7 @@
 #  - initial GPS configuration
 #  - accelerometer orientation adjustment
 #
+CAN_ARGS="bitrate 250000 listen-only off"
 
 # $1 number
 # $2 name
@@ -217,18 +218,6 @@ while [ 1 ]; do
 	i=$((i+1))
 done
 
-# initialize CAN bus
-gpio=$(getprop gpio.can_stby)
-[ "$gpio" -a -d /sys/class/net/can0 ] && {
-	echo "$pre: Configuring CANbus for 500kbps CAN_STBY=gpio$gpio" \
-		> /dev/console
-	ip link set can0 type can bitrate 500000 triple-sampling on
-	ifconfig can0 up
-
-	# export CAN_STBY gpio and configure as output-low (enable)
-	gpio ${gpio} CAN_STBY 0
-}
-
 # GW16107 adapter support
 [ -d /sys/bus/i2c/devices/2-0021 ] && {
 	echo "$pre: Configuring GW16109 adapter" > /dev/console
@@ -255,4 +244,15 @@ gpio=$(getprop gpio.can_stby)
 	setprop hw.led.keypad_backlight pca9685-led0
 	setprop hw.led.power_led_red pca9685-led1
 	setprop hw.led.power_led_blue pca9685-led2
+}
+
+# initialize CAN bus
+gpio=$(getprop gpio.can_stby)
+[ "$gpio" -a -d /sys/class/net/can0 ] && {
+	echo "$pre: Configuring CANbus" > /dev/console
+	ip link set can0 type can $CAN_ARGS
+	ifconfig can0 up
+
+	# export CAN_STBY gpio and configure as output-low (enable)
+	gpio ${gpio} CAN_STBY 0
 }
