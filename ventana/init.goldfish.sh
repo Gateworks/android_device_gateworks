@@ -65,17 +65,31 @@ done
 [ -z "$board" ] && {
 	board=`dd if=/sys/devices/platform/imx-i2c.0/i2c-0/0-0050/eeprom \
 		bs=1 count=16 skip=304 2>/dev/null | busybox hexdump -C | \
-		busybox head -1 | busybox cut -c62-65`
+		busybox head -1 | busybox cut -c62-77 | busybox tr -d .`
 }
 
+# determine serialnum from eeprom
+s0=$(i2cget -f -y 0 0x51 0x18)
+s1=$(i2cget -f -y 0 0x51 0x19)
+s2=$(i2cget -f -y 0 0x51 0x1a)
+s3=$(i2cget -f -y 0 0x51 0x1b)
+serial=$((s0|s1<<8|s2<<16|s3<<24))
+
 pre="${0##*/}"
-echo "$pre: Board: ${board}xx" > /dev/console
+echo "$pre: Board: ${board}" > /dev/console
+
+# set model/serial properties and update /sys/class/android_usb
+setprop ro.product.model "${board}"
+setprop ro.serialno "${serial}"
+echo -n "${board}" > /sys/class/android_usb/android0/iProduct
+#echo -n "${board}_${serial}" > /sys/class/android_usb/android0/iSerial
+echo -n "${serial}" > /sys/class/android_usb/android0/iSerial
 
 orientation=
 cvbs_in=
 hdmi_in=
 case "$board" in
-	GW54)
+	GW54*)
 		orientation=0
 		gps_device=/dev/ttymxc4
 		# GPIO mappings
@@ -89,7 +103,7 @@ case "$board" in
 		hdmi_in=/dev/video0
 		cvbs_in=/dev/video1
 		;;
-	GW53)
+	GW53*)
 		orientation=3
 		gps_device=/dev/ttymxc4
 		# GPIO mappings
@@ -102,7 +116,7 @@ case "$board" in
 		# Video Capture
 		cvbs_in=/dev/video0
 		;;
-	GW52)
+	GW52*)
 		orientation=3
 		gps_device=/dev/ttymxc4
 		# GPIO mappings
@@ -115,7 +129,7 @@ case "$board" in
 		# Video Capture
 		cvbs_in=/dev/video0
 		;;
-	GW51)
+	GW51*)
 		gps_device=/dev/ttymxc0
 		# GPIO mappings
 		setprop gpio.dio0 16
