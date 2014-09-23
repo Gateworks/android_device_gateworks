@@ -229,15 +229,25 @@ gpio=$(getprop gpio.can_stby)
 	gpio ${gpio} CAN_STBY 0
 }
 
-# GW16107 display adapter support
-[ -d /sys/bus/i2c/devices/2-0021 -a -d /sys/bus/i2c/devices/2-0049 ] && {
-	echo "$pre: Configuring GW16107 Display adapter" > /dev/console
+# GW16107 adapter support
+[ -d /sys/bus/i2c/devices/2-0021 ] && {
+	echo "$pre: Configuring GW16109 adapter" > /dev/console
 
 	gpio 249 LCD_3P3_EN 1
 	gpio 250 LCD_5P0_EN 1
 	gpio 248 VDD_12P0_EN 1
 	gpio 251 LCD_12P0_EN 1
 	gpio 10 LVDS_BACKLIGHT_EN 1
+	gpio 241 "CAN_EN#" 0
+	gpio 242 "DIGITAL_3" 0
+	gpio 243 "DIGITAL_2" 0
+	gpio 244 "DIGTIAL_1" 0
+	gpio 245 "BUZZER" 0
+}
+
+# GW16109 display adapter support
+[ -d /sys/bus/i2c/devices/2-0049 ] && {
+	echo "$pre: Configuring GW16109 Display adapter" > /dev/console
 
 	led pca9685-led0 keypad_backlight 255
 	led pca9685-led1 power_led_red 0
