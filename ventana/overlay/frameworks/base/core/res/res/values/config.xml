@@ -41,10 +41,6 @@
       <item>"bt-pan"</item>
     </string-array>
 
-    <!-- Flag indicating whether we should enable the automatic brightness in Settings.
-         config_hardware_automatic_brightness_available is not set, so we will use software implementation -->
-    <bool name="config_automatic_brightness_available">false</bool>
-
     <!-- An Array of "[ConnectivityManager connectionType],
                       [# simultaneous connection types]"  -->
     <string-array translatable="false" name="radioAttributes">
@@ -66,7 +62,9 @@
         <item>"ethernet,9,9,2,-1,true"</item>
     </string-array>
 
-    <bool name="config_automatic_brightness_available">true</bool>
+    <!-- Flag indicating whether we should enable the automatic brightness in Settings.
+         config_hardware_automatic_brightness_available is not set, so we will use software implementation -->
+    <bool name="config_automatic_brightness_available">false</bool>
 
     <!-- Array of light sensor LUX values to define our levels for auto backlight brightness support.
          The N entries of this array define N + 1 zones as follows:
