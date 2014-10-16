@@ -51,7 +51,7 @@ for p in ${panel}; do
 	setexpr nextcon $nextcon + 1
 
   elif itest.s "x${p}" == "xHDMI" ; then
-	test -n "$hdmi" || hdmi="1280x720M@60"
+	test -n "$hdmi" || hdmi="1920x1280M@60"
 	echo "  mxcfb${nextcon}: HDMI ($hdmi)"
 	setenv bootargs $bootargs video=mxcfb${nextcon}:dev=hdmi,bpp=32,${hdmi},if=RGB24
 	if test "0" -eq $nextcon; then
