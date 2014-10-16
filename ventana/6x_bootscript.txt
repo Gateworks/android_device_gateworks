@@ -1,3 +1,5 @@
+echo "Gateworks Ventana Android Boot script v1.01"
+
 setenv bootargs enable_wait_mode=off
 setenv nextcon 0
 setenv bootargs $bootargs console=${console},${baudrate} vmalloc=400M consoleblank=0
@@ -7,43 +9,67 @@ if test -n "$tempfuse" ; then
 fi
 
 # detect displays in the following priority: LVDS, HDMI
-i2c dev 2
-if i2c probe 0x04 ; then
-	echo "Freescale MXC-LVDS1 detected: mxcfb${nextcon}";
+if test -n "$panel" ; then
+else
+  echo "Detecting displays..."
+  i2c dev 2
+  if i2c probe 0x04 ; then
+	echo "  Freescale MXC-LVDS1 detected"
+	setenv panel $panel "Hannstar-XGA"
+  fi
+  if i2c probe 0x49 ; then
+	echo "  AUO G070VW01 with TSC2007 detected"
+	setenv panel $panel "AUO-G070VW01"
+  fi
+  if hdmidet ; then
+	echo "  HDMI detected"
+	setenv panel $panel "HDMI"
+  fi
+fi
+
+# configure displays
+echo "Configuring kernel bootargs for display(s): $panel"
+for p in ${panel}; do
+  if itest.s "x${p}" == "xHannstar-XGA" ; then
+	echo "  mxcfb${nextcon}: Freescale MXC-LVDS1"
 	setenv bootargs $bootargs video=mxcfb${nextcon}:dev=ldb,bpp=32,LDB-XGA,if=RGB666
 	if test "0" -eq $nextcon; then
-		setenv fbmem "fbmem=20M";
+		setenv fbmem "fbmem=20M"
 	else
 		setenv fbmem ${fbmem},20M
 	fi
 	setexpr nextcon $nextcon + 1
-fi
 
-if i2c probe 0x49 ; then
-	echo "AUO G070VW01 with TSC2007 detected: mxcfb${nextcon}";
+  elif itest.s "x${p}" == "xAUO-G070VW01" ; then
+	echo "  mxcfb${nextcon}: AUO G070VW01"
 	setenv bootargs $bootargs video=mxcfb${nextcon}:dev=ldb,bpp=32,LDB-WVGA,if=RGB666
 	if test "0" -eq $nextcon; then
-		setenv fbmem "fbmem=20M";
+		setenv fbmem "fbmem=20M"
 	else
 		setenv fbmem ${fbmem},20M
 	fi
 	setexpr nextcon $nextcon + 1
-fi
 
-if hdmidet ; then
-	echo "HDMI detected: mxcfb${nextcon}";
-	setenv bootargs $bootargs video=mxcfb${nextcon}:dev=hdmi,bpp=32,1280x720M@60,if=RGB24
+  elif itest.s "x${p}" == "xHDMI" ; then
+	test -n "$hdmi" || hdmi="1280x720M@60"
+	echo "  mxcfb${nextcon}: HDMI ($hdmi)"
+	setenv bootargs $bootargs video=mxcfb${nextcon}:dev=hdmi,bpp=32,${hdmi},if=RGB24
 	if test "0" -eq $nextcon; then
-		setenv fbmem "fbmem=48M";
+		setenv fbmem "fbmem=48M"
 	else
 		setenv fbmem ${fbmem},48M
 	fi
 	setexpr nextcon $nextcon + 1
-fi
 
+  else
+        echo "${p} not supported"
+  fi
+done
+
+# disable remaining mxcfb devices
 while test "4" -ne $nextcon ; do
-	setenv bootargs $bootargs video=mxcfb${nextcon}:off ;
-	setexpr nextcon $nextcon + 1 ;
+	setenv bootargs $bootargs video=mxcfb${nextcon}:off
+	setexpr nextcon $nextcon + 1
 done
 
 # boot disks
