@@ -28,6 +28,15 @@ TARGET_KERNEL_MODULES := \
   kernel_imx/drivers/net/wireless/ath/ath9k/ath9k_common.ko:system/lib/modules/ath9k_common.ko \
   kernel_imx/drivers/net/wireless/ath/ath9k/ath9k.ko:system/lib/modules/ath9k.ko
 
+BOARD_SEPOLICY_DIRS := \
+  device/fsl/ventana/sepolicy
+
+BOARD_SEPOLICY_UNION := \
+  app.te \
+  file_contexts \
+  fs_use \
+  untrusted_app.te \
+  genfs_contexts
 
 #
 # Bootloader
