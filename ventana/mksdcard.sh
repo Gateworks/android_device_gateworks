@@ -23,6 +23,7 @@ if ! [ -d out/target/product/$product/data ]; then
    exit 1;
 fi
 
+# create list of block devices between 3772MB and 61035MB
 removable_disks() {
 	for f in `ls /dev/disk/by-path/* | grep -v part` ; do
 		diskname=$(basename `readlink $f`);
@@ -31,7 +32,7 @@ removable_disks() {
 		issd=0 ;
 		# echo "checking $diskname/$type/$size" ;
 		if [ $size -ge 3862528 ]; then
-			if [ $size -lt 62500000 ]; then
+			if [ $size -lt 64500000 ]; then
 				issd=1 ;
 			fi
 		fi
