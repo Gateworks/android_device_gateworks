@@ -3,7 +3,7 @@
 #
 
 include device/fsl/imx6/soc/imx6dq.mk
-export BUILD_ID=4.3_1.0.0-ga
+include device/gateworks/ventana/build_id.mk
 include device/fsl/imx6/BoardConfigCommon.mk
 # 380MB system image (prune to size needed for system apps)
 BOARD_SYSTEMIMAGE_PARTITION_SIZE := 398458880
