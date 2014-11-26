@@ -19,8 +19,11 @@ PRODUCT_PACKAGES += \
 	FSLOta					\
 	CactusPlayer                            \
 	WfdSink                                 \
+	wfd                                     \
+	ethernet                                \
 	libfsl_wfd.so                           \
 	fsl.imx.jar                             \
+	hwcomposer_fsl.imx6.so                  \
 	VideoEditor				\
 	FSLProfileApp				\
 	FSLProfileService			\
@@ -37,6 +40,8 @@ PRODUCT_PACKAGES += \
 	ip-down-ppp0				\
 	wpa_supplicant				\
 	wpa_supplicant.conf			\
+	p2p_supplicant_overlay.conf			\
+	wpa_supplicant_overlay.conf			\
 	dispd					\
 	ts_calibrator				\
 	libion                                  \
@@ -157,6 +162,7 @@ omx_libs := \
 	lib_omx_clock_v2_arm11_elinux			\
 	lib_omx_local_file_pipe_v2_arm11_elinux		\
 	lib_omx_shared_fd_pipe_arm11_elinux		\
+	lib_omx_async_write_pipe_arm11_elinux		\
 	lib_omx_https_pipe_arm11_elinux			\
 	lib_omx_fsl_parser_v2_arm11_elinux		\
 	lib_omx_wav_parser_v2_arm11_elinux		\
@@ -228,6 +234,10 @@ omx_libs := \
 	lib_flac_parser_arm11_elinux.3.0 \
 	lib_wav_parser_arm11_elinux.3.0 \
 	lib_omx_ac3toiec937_arm11_elinux \
+        lib_omx_ec3_dec_v2_arm11_elinux \
+	lib_omx_libav_video_dec_arm11_elinux \
+	libavcodec-55 \
+	libavutil-53 \
 
 
 
@@ -245,6 +255,9 @@ omx_excluded_libs :=					\
 	lib_wma10d_wrap_arm12_elinux_android \
 	lib_aacplusd_wrap_arm12_elinux_android \
 	lib_ac3d_wrap_arm11_elinux_android \
+        lib_ddpd_wrap_arm12_elinux_android \
+        lib_ddplus_dec_v2_arm12_elinux \
+
 
 PRODUCT_PACKAGES += $(omx_libs) $(omx_excluded_libs)
 
