@@ -73,10 +73,10 @@ on boot
     setprop ro.ril.wake_lock_timeout 300
 
     # Default backlight device
-    setprop hw.backlight.dev "pwm-backlight.3"
+    setprop hw.backlight.dev "backlight.0"
     # Chmod/chown FSL specific sys entry
-    chown system system /sys/class/backlight/pwm-backlight.3/brightness
-    chmod 0660 /sys/class/backlight/pwm-backlight.3/brightness
+    chown system system /sys/class/backlight/backlight.0/brightness
+    chmod 0660 /sys/class/backlight/backlight.0/brightness
 
     # emulate battery
     setprop sys.emulated.battery 1
