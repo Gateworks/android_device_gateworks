@@ -63,8 +63,8 @@ done
 
 # as fallback get from eeprom manually
 [ -z "$board" ] && {
-	board=`dd if=/sys/devices/platform/imx-i2c.0/i2c-0/0-0050/eeprom \
-		bs=1 count=16 skip=304 2>/dev/null | busybox hexdump -C | \
+	board=`dd if=/sys/bus/i2c/devices/0-0051/eeprom \
+		bs=1 count=16 skip=48 2>/dev/null | busybox hexdump -C | \
 		busybox head -1 | busybox cut -c62-77 | busybox tr -d .`
 }
 
@@ -162,11 +162,9 @@ esac
 	state_cvbs=$state
 }
 [ -r "${hdmi_in}" ] && {
-	[ -d /sys/devices/platform/imx-i2c.2 ] && \
-		dir=/sys/devices/platform/imx-i2c.2/i2c-2/2-0048/
-	[ -d /sys/devices/soc0/soc.1/2100000.aips-bus/21a8000.i2c/ ] && \
-		dir=/sys/devices/soc0/soc.1/2100000.aips-bus/21a8000.i2c/i2c-2/2-0048
-	#state="$(cat $dir/state)"
+	[ -d /sys/bus/i2c/devices/2-0048/ ] && {
+		state="$(cat $/sys/bus/i2c/devices/2-0048/state)"
+	}
 	#echo "$pre: hdmi_in:${hdmi_in} state=${state}" > /dev/console
 	[ "$state" = "locked" ] || hdmi_in=
 	state_hdmi=$state
