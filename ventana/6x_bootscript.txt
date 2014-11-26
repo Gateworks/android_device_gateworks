@@ -2,7 +2,7 @@ echo "Gateworks Ventana Android Boot script v1.01"
 
 setenv bootargs enable_wait_mode=off
 setenv nextcon 0
-setenv bootargs $bootargs console=${console},${baudrate} vmalloc=400M consoleblank=0
+setenv bootargs $bootargs console=ttymxc1,115200 cma=384M consoleblank=0
 
 if test -n "$tempfuse" ; then
 	setenv bootargs $bootargs thermal.fusedata=$tempfuse
@@ -72,7 +72,8 @@ while test "4" -ne $nextcon ; do
 	setexpr nextcon $nextcon + 1
 done
 
-# boot disks
+# boot disks (detect dtype by looking for kernel)
+# in order of preference: usb/mmc/sata
 test -n "$fs"    || fs=ext2
 test -n "$disk"  || disk=0
 if test -n "$dtype" ; then
@@ -91,31 +92,16 @@ fi
 if test -n "$bootdev" ; then
 	echo "Using androidboot.bootdev=$bootdev"
 else
-	if itest.s "x${dtype}" == "xusb" ; then
-		if test -n "$usbdevport" ; then
-			bootdev=fsl-ehci.${usbdevport}
-			if itest "${usbdevport}" == 0 ; then
-				echo "USB0: OTG"
-			elif itest "${usbdevport}" == 1 ; then
-				echo "USB1: EHCI"
-			else
-				echo "Unsuported USB host controller:$usbdevport"
-			fi
-		else
-			bootdev=fsl-ehci.1
-		fi
-	elif itest.s "x${dtype}" == "xmmc" ; then
-		bootdev=sdhci-esdhc-imx.2
-	elif itest.s "x${dtype}" == "xsata" ; then
-		bootdev=ahci.0
+	if itest.s "x${dtype}" == "xmmc" ; then
+		bootdev=mmcblk2
 	else
-		echo "Unsupported dtype:${dtype}"
+		bootdev=sda
 	fi
 	echo "androidboot.bootdev=$bootdev"
 fi
 
-setenv bootargs $bootargs androidboot.hardware=freescale androidboot.bootdev=$bootdev ${extra}
+setenv bootargs $bootargs androidboot.hardware=freescale androidboot.bootdev=$bootdev androidboot.console=${console} ${extra}
 
-${fs}load ${dtype} ${disk}:1 10800000 boot/uImage && ${fs}load ${dtype} ${disk}:1 12800000 boot/uramdisk.img && bootm 10800000 12800000
+${fs}load ${dtype} ${disk}:1 10800000 boot/uImage && ${fs}load ${dtype} ${disk}:1 18000000 boot/${fdt_file2} && bootm 10800000 - 18000000
 
 echo "Error loading kernel image"
