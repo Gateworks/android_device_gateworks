@@ -147,12 +147,16 @@ esac
 # Camera configuration
 # (landscape mode orient is 0, For portrait mode orient is 90)
 [ -r "${cvbs_in}" ] && {
-	state="$(v4l2-ctl -d ${cvbs_in} --get-standard | busybox head -n1 | busybox awk '{print $4}')"
-	case "$state" in
-		0x000000ff) state="PAL";;
-		0x0000b000) state="NTSC";;
-		*) state=;;
-	esac
+	status=$(i2cget -f -y 2 0x20 0x10)
+	locked=$((status & 0x1))
+	state=
+	[ "$locked" ] && {
+		standard=$((status & 0x70))
+		case "$standard" in
+			64) state="PAL";;
+			0) state="NTSC";;
+		esac
+	}
 	echo "$pre: cvbs_in:${cvbs} state=${state}" > /dev/console
 	[ "$state" ] || cvbs_in=
 	state_cvbs=$state
