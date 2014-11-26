@@ -17,6 +17,17 @@ TARGET_KERNEL_DEFCONF := $(DEFCONF)
 else
 TARGET_KERNEL_DEFCONF := gwventana_android_defconfig
 endif
+TARGET_BOARD_DTS_CONFIG := \
+  imx6q:imx6q-gw54xx.dtb \
+  imx6q:imx6q-gw53xx.dtb \
+  imx6q:imx6q-gw52xx.dtb \
+  imx6q:imx6q-gw51xx.dtb \
+  imx6q:imx6q-gw552x.dtb \
+  imx6dl:imx6dl-gw54xx.dtb \
+  imx6dl:imx6dl-gw53xx.dtb \
+  imx6dl:imx6dl-gw52xx.dtb \
+  imx6dl:imx6dl-gw51xx.dtb \
+  imx6dl:imx6dl-gw552x.dtb
 
 TARGET_KERNEL_MODULES := \
   kernel_imx/drivers/net/sky2.ko:system/lib/modules/sky2.ko \
