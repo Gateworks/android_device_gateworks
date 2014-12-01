@@ -8,6 +8,9 @@ include device/fsl/imx6/BoardConfigCommon.mk
 # 380MB system image (prune to size needed for system apps)
 BOARD_SYSTEMIMAGE_PARTITION_SIZE := 398458880
 
+BOARD_SOC_CLASS := IMX6
+BOARD_SOC_TYPE := IMX6DQ
+PRODUCT_MODEL := Gateworks Ventana
 
 #
 # Kernel
@@ -53,7 +56,6 @@ BOARD_SEPOLICY_UNION := \
 # Bootloader
 #
 TARGET_BOOTLOADER_BOARD_NAME := ventana
-PRODUCT_MODEL := Gateworks Ventana
 TARGET_BOOTLOADER_CONFIG := gwventana_config
 
 #
