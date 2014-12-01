@@ -114,7 +114,7 @@ else
 	echo "androidboot.bootdev=$bootdev"
 fi
 
-setenv bootargs $bootargs androidboot.hardware=freescale androidboot.bootdev=$bootdev ${extra}
+setenv bootargs $bootargs androidboot.hardware=freescale androidboot.bootdev=$bootdev androidboot.serialno=${serial#} androidboot.product.model=${model} ${extra}
 
 ${fs}load ${dtype} ${disk}:1 10800000 boot/uImage && ${fs}load ${dtype} ${disk}:1 12800000 boot/uramdisk.img && bootm 10800000 12800000
 
