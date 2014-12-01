@@ -33,32 +33,17 @@ for p in ${panel}; do
   if itest.s "x${p}" == "xHannstar-XGA" ; then
 	echo "  mxcfb${nextcon}: Freescale MXC-LVDS1"
 	setenv bootargs $bootargs video=mxcfb${nextcon}:dev=ldb,bpp=32,LDB-XGA,if=RGB666
-	if test "0" -eq $nextcon; then
-		setenv fbmem "fbmem=20M"
-	else
-		setenv fbmem ${fbmem},20M
-	fi
 	setexpr nextcon $nextcon + 1
 
   elif itest.s "x${p}" == "xAUO-G070VW01" ; then
 	echo "  mxcfb${nextcon}: AUO G070VW01"
 	setenv bootargs $bootargs video=mxcfb${nextcon}:dev=ldb,bpp=32,LDB-WVGA,if=RGB666
-	if test "0" -eq $nextcon; then
-		setenv fbmem "fbmem=20M"
-	else
-		setenv fbmem ${fbmem},20M
-	fi
 	setexpr nextcon $nextcon + 1
 
   elif itest.s "x${p}" == "xHDMI" ; then
 	test -n "$hdmi" || hdmi="1920x1280M@60"
 	echo "  mxcfb${nextcon}: HDMI ($hdmi)"
 	setenv bootargs $bootargs video=mxcfb${nextcon}:dev=hdmi,bpp=32,${hdmi},if=RGB24
-	if test "0" -eq $nextcon; then
-		setenv fbmem "fbmem=48M"
-	else
-		setenv fbmem ${fbmem},48M
-	fi
 	setexpr nextcon $nextcon + 1
 
   else
