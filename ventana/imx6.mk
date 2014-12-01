@@ -13,6 +13,7 @@ PRODUCT_PACKAGES += \
 	Gallery2				\
 	Gallery		    			\
 	SoundRecorder				\
+	Camera2					\
 	Camera					\
 	LegacyCamera                            \
 	Email					\
@@ -96,6 +97,7 @@ PRODUCT_PACKAGES += \
 	gralloc.imx6				\
 	copybit.imx6				\
 	hwcomposer.imx6				\
+	camera.imx6				\
 	power.imx6				\
 	audio.r_submix.default			\
 	libbt-vendor
