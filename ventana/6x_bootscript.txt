@@ -85,7 +85,7 @@ else
 	echo "androidboot.bootdev=$bootdev"
 fi
 
-setenv bootargs $bootargs androidboot.hardware=freescale androidboot.bootdev=$bootdev androidboot.console=${console} ${extra}
+setenv bootargs $bootargs androidboot.hardware=freescale androidboot.bootdev=$bootdev androidboot.console=${console} androidboot.serialno=${serial#} androidboot.product.model=${model} ${extra}
 
 ${fs}load ${dtype} ${disk}:1 10800000 boot/uImage && ${fs}load ${dtype} ${disk}:1 18000000 boot/${fdt_file2} && bootm 10800000 - 18000000
 
