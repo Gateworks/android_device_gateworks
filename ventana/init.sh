@@ -78,13 +78,6 @@ serial=$((s0|s1<<8|s2<<16|s3<<24))
 pre="${0##*/}"
 echo "$pre: Board: ${board}" > /dev/console
 
-# set model/serial properties and update /sys/class/android_usb
-setprop ro.product.model "${board}"
-setprop ro.serialno "${serial}"
-echo -n "${board}" > /sys/class/android_usb/android0/iProduct
-#echo -n "${board}_${serial}" > /sys/class/android_usb/android0/iSerial
-echo -n "${serial}" > /sys/class/android_usb/android0/iSerial
-
 orientation=
 cvbs_in=
 hdmi_in=
