@@ -143,18 +143,3 @@ service watchdogd /sbin/watchdogd 10 20
 on fs
     # mount ext4 partitions
     mount_all /fstab.freescale
-    # wireless
-    insmod /system/lib/modules/compat.ko
-    insmod /system/lib/modules/cfg80211.ko
-    insmod /system/lib/modules/mac80211.ko
-    # atheros
-    insmod /system/lib/modules/ath.ko
-    # ath5k
-    insmod /system/lib/modules/ath5k.ko
-    # ath9k
-    insmod /system/lib/modules/ath9k_hw.ko
-    insmod /system/lib/modules/ath9k_common.ko
-    insmod /system/lib/modules/ath9k.ko
-    # ath10k
-    insmod /system/lib/modules/ath10k_core.ko
-    insmod /system/lib/modules/ath10k_pci.ko
