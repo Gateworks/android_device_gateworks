@@ -146,8 +146,6 @@ service watchdogd /sbin/watchdogd 10 20
 on fs
     # mount ext4 partitions
     mount_all /fstab.freescale
-    # eth1
-    insmod /system/lib/modules/sky2.ko
     # wireless
     insmod /system/lib/modules/compat.ko
     insmod /system/lib/modules/cfg80211.ko
