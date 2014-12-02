@@ -9,6 +9,6 @@ $BD5	/system      ext4    ro                                                    
 $BD4	/data        ext4    nosuid,nodev,nodiratime,noatime,nomblk_io_submit,noauto_da_alloc,errors=panic    wait,encryptable=footer
 $BD6	/cache       ext4    nosuid,nodev,nomblk_io_submit                                                    wait
 $BD7	/device      ext4    ro,nosuid,nodev                                                                  wait
-$BD1	/boot        emmc    defaults                                                                         defaults
-$BD2	/recovery    emmc    defaults                                                                         defaults
-$BD8	/misc        emmc    defaults                                                                         defaults
+$BD1	/boot        ext4    defaults                                                                         defaults
+$BD2	/recovery    ext4    defaults                                                                         defaults
+$BD8	/misc        ext4    defaults                                                                         defaults
