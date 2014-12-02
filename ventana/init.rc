@@ -133,12 +133,6 @@ service wpa_supplicant /system/bin/logwrapper /system/bin/wpa_supplicant \
     disabled
     oneshot
 
-# dhcp daemon
-service dhcpcd_wlan0 /system/bin/logwrapper /system/bin/dhcpcd -ABKL
-    class late_start
-    disabled
-    oneshot
-
 # Set watchdog timer to 30 seconds and pet it every 10 seconds to get a 20 second margin
 service watchdogd /sbin/watchdogd 10 20
     class core
