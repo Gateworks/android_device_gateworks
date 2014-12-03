@@ -267,3 +267,6 @@ gpio=$(getprop gpio.can_stby)
 	# export CAN_STBY gpio and configure as output-low (enable)
 	gpio ${gpio} CAN_STBY 0
 }
+
+# execute user-specifc init script
+[ -x /data/bin/init.sh ] && /data/bin/init.sh
