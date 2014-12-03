@@ -265,3 +265,9 @@ gpio=$(getprop gpio.can_stby)
 	# export CAN_STBY gpio and configure as output-low (enable)
 	gpio ${gpio} CAN_STBY 0
 }
+
+# bluetooth RFKILL fixup
+chmod 666 /sys/class/rfkill/rfkill1/state
+echo 1 > /sys/class/bluetooth/hci0/rfkill0/state
+# USB perms
+chmod -R 777 /dev/bus/usb

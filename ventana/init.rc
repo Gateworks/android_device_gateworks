@@ -91,8 +91,8 @@ on boot
     # disable PM (set to false to enable suspend/resume features)
     setprop hw.nopm true
 
-    # No bluetooth hardware present
-    #setprop wlan.interface wlan0
+    # bluetooth
+    setprop hw.bluetooth 1
 
     # wifi
     setprop wifi.interface wlan0

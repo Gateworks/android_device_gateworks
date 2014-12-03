@@ -114,6 +114,19 @@ USE_ATHR_GPS_HARDWARE := true
 BOARD_HAS_SENSOR := true
 
 
+#
+# Bluetooth
+#
+BOARD_HAVE_BLUETOOTH := true
+BOARD_HAVE_BLUETOOTH_BCM := true
+BUILD_EXTRA_BT_TOOLS := true
+BOARD_BLUETOOTH_DOES_NOT_USE_RFKILL := true
+BOARD_BLUETOOTH_USES_HCIATTACH_PROPERTY := true
+BLUETOOTH_HCI_USE_USB := true
+# if not defined uses hardware/broadcom/libbt/include/vnd_generic_usb.txt
+#BOARD_BLUEDROID_VENDOR_CONF := device/gateworks/ventana/bluetooth/vnd_ventana.
+
+
 # GPU
 include device/fsl-proprietary/gpu-viv/fsl-gpu.mk
 
