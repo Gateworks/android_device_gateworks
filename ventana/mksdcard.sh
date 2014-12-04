@@ -18,7 +18,7 @@ fi
 
 echo "---------build SD card for product $product";
 
-if ! [ -d out/target/product/$product/data ]; then
+if ! [ -d out/target/product/$product ]; then
    echo "Missing out/target/product/$product";
    exit 1;
 fi
@@ -123,6 +123,7 @@ sudo cp -rfv out/target/product/$product/boot/* /media/BOOT/
 sudo cp -rfv out/target/product/$product/uImage /media/RECOVER/
 sudo cp -rfv out/target/product/$product/uramdisk-recovery.img /media/RECOVER/
 # DATA: application data
+[ -d out/target/product/$product/data ] && \
 sudo cp -ravf out/target/product/$product/data/* /media/DATA/
 # SYSTEM: system image
 sudo dd if=out/target/product/$product/system.img of=${diskname}${prefix}5
