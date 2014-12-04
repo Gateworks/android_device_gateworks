@@ -103,6 +103,11 @@ PRODUCT_PACKAGES += \
 	audio.r_submix.default			\
 	libbt-vendor
 
+# USB Bluetooth HCI
+PRODUCT_PACKAGES += \
+	libusb					\
+	libbt-hci
+
 # Freescale VPU firmware files.
 PRODUCT_PACKAGES += \
 	libvpu					\

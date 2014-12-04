@@ -120,12 +120,12 @@ BOARD_HAS_SENSOR := true
 #
 BOARD_HAVE_BLUETOOTH := true
 BOARD_HAVE_BLUETOOTH_BCM := true
-BUILD_EXTRA_BT_TOOLS := true
-BOARD_BLUETOOTH_DOES_NOT_USE_RFKILL := true
-BOARD_BLUETOOTH_USES_HCIATTACH_PROPERTY := true
+# This requires a patched Bluedroid that supports bt_usb via the broadcom
+# vendor lib
 BLUETOOTH_HCI_USE_USB := true
 # if not defined uses hardware/broadcom/libbt/include/vnd_generic_usb.txt
 #BOARD_BLUEDROID_VENDOR_CONF := device/gateworks/ventana/bluetooth/vnd_ventana.
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/gateworks/ventana/bluetooth
 
 
 # GPU
