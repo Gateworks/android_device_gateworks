@@ -7,8 +7,8 @@ $(call inherit-product-if-exists,vendor/google/products/gms.mk)
 # Overrides
 PRODUCT_NAME := ventana
 PRODUCT_DEVICE := ventana
-PRODUCT_BRAND := gateworks
-PRODUCT_MANUFACTURER := gateworks
+PRODUCT_BRAND := Gateworks
+PRODUCT_MANUFACTURER := Gateworks
 
 # Files to copy to the root (ramdisk) and system (rom) filesystems
 PRODUCT_COPY_FILES += \
