@@ -143,3 +143,13 @@ service watchdogd /sbin/watchdogd 10 20
 on fs
     # mount ext4 partitions
     mount_all /fstab.freescale
+    # load various kernel modules
+    # uncomment these if they are needed but be sure to also install
+    # any firmware they need in /system/etc/firmware or /vendor/firmware
+    #insmod /system/lib/modules/carl9170.ko
+    #insmod /system/lib/modules/ath3k.ko
+    #insmod /system/lib/modules/rtlwifi.ko
+    #insmod /system/lib/modules/rt2x00lib.ko
+    #insmod /system/lib/modules/rt2x00usb.ko
+    #insmod /system/lib/modules/rt2800lib.ko
+    #insmod /system/lib/modules/rt2800usb.ko
