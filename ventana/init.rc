@@ -141,8 +141,10 @@ service watchdogd /sbin/watchdogd 10 20
     class core
 
 on fs
-    # mount ext4 partitions
-    mount_all /fstab.freescale
+    # mount partitions
+    symlink /fstab_${ro.bootmode} /fstab.freescale
+    mount_all /fstab_${ro.bootmode}
+
     # load various kernel modules
     # uncomment these if they are needed but be sure to also install
     # any firmware they need in /system/etc/firmware or /vendor/firmware

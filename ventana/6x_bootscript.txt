@@ -2,14 +2,23 @@ echo "Gateworks Ventana Android Boot script v1.01"
 
 setenv bootargs enable_wait_mode=off
 setenv nextcon 0
-setenv bootargs $bootargs console=ttymxc1,115200 cma=384M consoleblank=0
+setenv bootargs "${bootargs}" console=ttymxc1,115200 cma=384M consoleblank=0
+setenv loadaddr 10800000
+setenv fdt_addr 18000000
 
 if test -n "$tempfuse" ; then
-	setenv bootargs $bootargs thermal.fusedata=$tempfuse
+	setenv bootargs "${bootargs}" thermal.fusedata=$tempfuse
 fi
 
 # detect displays in the following priority: LVDS, HDMI
+# setenv panel to override detection for a single display:
+#    Hannstar-XGA|AUO-G070VW01|HDMI
+# or setenv video if you want multiple displays and you know what you are doing
+if test -n "$video" ; then
+  echo "using video config from env: $video"
+else
 if test -n "$panel" ; then
+  echo "using panel from env: $panel"
 else
   echo "Detecting displays..."
   i2c dev 2
@@ -32,18 +41,18 @@ echo "Configuring kernel bootargs for display(s): $panel"
 for p in ${panel}; do
   if itest.s "x${p}" == "xHannstar-XGA" ; then
 	echo "  mxcfb${nextcon}: Freescale MXC-LVDS1"
-	setenv bootargs $bootargs video=mxcfb${nextcon}:dev=ldb,bpp=32,LDB-XGA,if=RGB666
+	setenv bootargs "${bootargs}" video=mxcfb${nextcon}:dev=ldb,bpp=32,LDB-XGA,if=RGB666
 	setexpr nextcon $nextcon + 1
 
   elif itest.s "x${p}" == "xAUO-G070VW01" ; then
 	echo "  mxcfb${nextcon}: AUO G070VW01"
-	setenv bootargs $bootargs video=mxcfb${nextcon}:dev=ldb,bpp=32,LDB-WVGA,if=RGB666
+	setenv bootargs "${bootargs}" video=mxcfb${nextcon}:dev=ldb,bpp=32,LDB-WVGA,if=RGB666
 	setexpr nextcon $nextcon + 1
 
   elif itest.s "x${p}" == "xHDMI" ; then
 	test -n "$hdmi" || hdmi="1920x1280M@60"
 	echo "  mxcfb${nextcon}: HDMI ($hdmi)"
-	setenv bootargs $bootargs video=mxcfb${nextcon}:dev=hdmi,bpp=32,${hdmi},if=RGB24
+	setenv bootargs "${bootargs}" video=mxcfb${nextcon}:dev=hdmi,bpp=32,${hdmi},if=RGB24
 	setexpr nextcon $nextcon + 1
 
   else
@@ -53,40 +62,74 @@ done
 
 # disable remaining mxcfb devices
 while test "4" -ne $nextcon ; do
-	setenv bootargs $bootargs video=mxcfb${nextcon}:off
+	setenv bootargs "${bootargs}" video=mxcfb${nextcon}:off
 	setexpr nextcon $nextcon + 1
 done
+fi
 
-# boot disks (detect dtype by looking for kernel)
-# in order of preference: usb/mmc/sata
+
+# detect dtype and bootdev by looking for kernel on media the bootloader
+# has mounted (in order of preference: usb/mmc/sata)
+#
+# This assumes the bootloader has already started the respective subsystem
+# or mounted the filesystem if appropriate to get to this bootscript
+#
+# To Speed up boot set dtype manually
 test -n "$fs"    || fs=ext2
 test -n "$disk"  || disk=0
 if test -n "$dtype" ; then
 	echo "booting from $dtype"
 else
 	echo "Detecting boot device (dtype)..."
-	if ${fs}load usb ${disk}:1 10800000 boot/uImage ; then
+	if ${fs}load usb ${disk}:1 ${loadaddr} boot/uImage ; then
 		dtype=usb
-	elif ${fs}load mmc ${disk}:1 10800000 boot/uImage ; then
+	elif ${fs}load mmc ${disk}:1 ${loadaddr} boot/uImage ; then
 		dtype=mmc
-	elif ${fs}load sata ${disk}:1 10800000 boot/uImage ; then
+	elif ${fs}load sata ${disk}:1 ${loadaddr} boot/uImage ; then
 		dtype=sata
+	elif ubifsload ${loadaddr} boot/uImage ; then
+		dtype=nand
 	fi
-	echo "dtype:$dtype"
+	echo "detected dtype:$dtype"
 fi
 if test -n "$bootdev" ; then
-	echo "Using androidboot.bootdev=$bootdev"
+	echo "Using bootdev from env: $bootdev"
 else
 	if itest.s "x${dtype}" == "xmmc" ; then
 		bootdev=mmcblk2
 	else
 		bootdev=sda
 	fi
-	echo "androidboot.bootdev=$bootdev"
 fi
 
-setenv bootargs $bootargs androidboot.hardware=freescale androidboot.bootdev=$bootdev androidboot.console=${console} androidboot.serialno=${serial#} androidboot.product.model=${model} ${extra}
+setenv bootargs "${bootargs}" androidboot.hardware=freescale androidboot.console=${console} androidboot.product.model=${model} androidboot.serialno=${serial#} 
 
-${fs}load ${dtype} ${disk}:1 10800000 boot/uImage && ${fs}load ${dtype} ${disk}:1 18000000 boot/${fdt_file2} && bootm 10800000 - 18000000
+if itest.s "x${dtype}" == "xnand" ; then
+	echo "Booting from NAND..."
+	setenv bootargs "${bootargs}" androidboot.mode=nand ubi.mtd=2
+	# disable selinux until we get policy config figured out
+	setenv bootargs "${bootargs}" selinux=0
+	setenv fsload ubifsload
+else
+	echo "Booting from block device ${bootdev}..."
+	setenv bootargs "${bootargs}" androidboot.mode=block androidboot.bootdev=${bootdev}
+	setenv fsload "${fs}load ${dtype} ${disk}:1"
+fi
 
-echo "Error loading kernel image"
+setenv bootargs "${bootargs}" "${extra}"
+if ${fsload} ${loadaddr} boot/uImage; then
+	if ${fsload} ${fdt_addr} boot/${fdt_file}; then
+		echo Loaded DTB from boot/${fdt_file}
+		bootm ${loadaddr} - ${fdt_addr}
+	elif ${fsload} ${fdt_addr} boot/${fdt_file1}; then
+		echo Loaded DTB from boot/${fdt_file1}
+		bootm ${loadaddr} - ${fdt_addr}
+	elif ${fsload} ${fdt_addr} boot/${fdt_file2}; then
+		echo Loaded DTB from boot/${fdt_file2}
+		bootm ${loadaddr} - ${fdt_addr}
+	else
+		echo "Error loading device-tree"
+	fi
+else
+	echo "Error loading kernel image"
+fi

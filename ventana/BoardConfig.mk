@@ -68,35 +68,21 @@ TARGET_BOOTLOADER_CONFIG := gwventana_config
 #
 BUILD_TARGET_FS ?= ext4
 include device/fsl/imx6/imx6_target_fs.mk
-ifeq ($(BUILD_TARGET_FS),ubifs)
-TARGET_RECOVERY_FSTAB = device/gateworks/ventana/fstab_nand.freescale
-# build ubifs for nand devices
-PRODUCT_COPY_FILES +=	\
-	device/gateworks/ventana/fstab_nand.freescale:root/fstab.freescale
-else
-TARGET_RECOVERY_FSTAB = device/gateworks/ventana/fstab.freescale
-# build for ext4
-PRODUCT_COPY_FILES +=	\
-	device/gateworks/ventana/fstab.freescale:root/fstab.freescale
-endif # BUILD_TARGET_FS
+TARGET_RECOVERY_FSTAB = device/gateworks/ventana/fstab_nand
+PRODUCT_COPY_FILES += device/gateworks/ventana/fstab_nand:root/fstab_nand
+PRODUCT_COPY_FILES += device/gateworks/ventana/fstab_block:root/fstab_block
 
 # we don't support sparse image.
 TARGET_USERIMAGES_SPARSE_EXT_DISABLED := true
 
-# uncomment below lins if use NAND
-#TARGET_USERIMAGES_USE_UBIFS = true
+# Generated NAND images
+TARGET_USERIMAGES_USE_UBIFS = true
 
 # 2G geometry
 ifeq ($(TARGET_USERIMAGES_USE_UBIFS),true)
 UBI_ROOT_INI := device/gateworks/ventana/ubi/ubinize.ini
-TARGET_MKUBIFS_ARGS := -m 4096 -e 516096 -c 4096 -x none
-TARGET_UBIRAW_ARGS := -m 4096 -p 512KiB $(UBI_ROOT_INI)
-endif
-
-ifeq ($(TARGET_USERIMAGES_USE_UBIFS),true)
-ifeq ($(TARGET_USERIMAGES_USE_EXT4),true)
-$(error "TARGET_USERIMAGES_USE_UBIFS and TARGET_USERIMAGES_USE_EXT4 config open in same time, please only choose one target file system image")
-endif
+TARGET_MKUBIFS_ARGS := -F -m 4096 -e 248KiB -c 8124 -x zlib
+TARGET_UBIRAW_ARGS := -m 4096 -p 256KiB -s 4096 $(UBI_ROOT_INI)
 endif
 
 
