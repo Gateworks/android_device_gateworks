@@ -70,7 +70,7 @@ echo "reasonable disk $diskname, partitions ${diskname}${prefix}1..." ;
 umount ${diskname}${prefix}*
 umount gvfs
 
-dd if=/dev/zero of=${diskname}${prefix} count=1 bs=1024
+dd if=/dev/zero of=${diskname}${prefix} count=1 bs=1024 oflag=sync
 
 # Partitions:
 # 1:BOOT     ext4 20MB
@@ -101,7 +101,7 @@ for n in `seq 1 8` ; do
 done
 
 echo "all partitions present and accounted for!";
-sync && sudo sfdisk -R ${diskname}${prefix}
+sudo sfdisk -R ${diskname}${prefix}
 
 mkfs.ext4 -L BOOT ${diskname}${prefix}1
 mkfs.ext4 -L RECOVER ${diskname}${prefix}2
@@ -109,12 +109,20 @@ mkfs.ext4 -L DATA ${diskname}${prefix}4
 mkfs.ext4 -L CACHE ${diskname}${prefix}6
 mkfs.ext4 -L VENDOR ${diskname}${prefix}7
 mkfs.ext4 -L MISC ${diskname}${prefix}8
+sync && sudo sfdisk -R ${diskname}${prefix}
 
 # some slower systems need a sleep here to let the host OS catch up
-sleep 10
+sync && sleep 10
 for n in 1 2 4 ; do
    udisks --mount ${diskname}${prefix}${n}
 done
+# sanity check - I'm seeing that occasionally we continue on before the
+# parts are mounted
+[ -d /media/BOOT -a -d /media/RECOVER -a -d /media/DATA ] || {
+  echo "Error: mount not complete!"
+  ls -l /media
+  exit 1
+}
 
 # BOOT: bootscripts, kernel, and ramdisk
 mkdir /media/BOOT/boot
