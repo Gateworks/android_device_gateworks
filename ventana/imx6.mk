@@ -42,8 +42,6 @@ PRODUCT_PACKAGES += \
 	ip-down-ppp0				\
 	wpa_supplicant				\
 	wpa_supplicant.conf			\
-	p2p_supplicant_overlay.conf			\
-	wpa_supplicant_overlay.conf			\
 	dispd					\
 	ts_calibrator				\
 	libion                                  \
