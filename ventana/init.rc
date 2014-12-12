@@ -117,9 +117,7 @@ service board-setup /system/bin/logwrapper /system/bin/init.sh
 
 # wpa_supplicant
 service wpa_supplicant /system/bin/logwrapper /system/bin/wpa_supplicant \
-    -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf \
-    -O/data/misc/wifi/sockets \
-    -e/data/misc/wifi/entropy.bin -g@android:wpa_wlan0
+    -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf
     socket wpa_wlan0 dgram 660 wifi wifi
     class late_start
     disabled
