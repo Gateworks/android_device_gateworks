@@ -83,6 +83,13 @@ gps_device=
 cvbs_in=
 hdmi_in=
 case "$board" in
+	GW552*)
+		# GPIO mappings
+		setprop gpio.dio0 16
+		setprop gpio.dio1 17
+		setprop gpio.dio2 19
+		setprop gpio.dio3 20
+		;;
 	GW54*)
 		orientation=0
 		gps_device=/dev/ttymxc4
