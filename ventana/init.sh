@@ -79,6 +79,7 @@ pre="${0##*/}"
 echo "$pre: Board: ${board}" > /dev/console
 
 orientation=
+gps_device=
 cvbs_in=
 hdmi_in=
 case "$board" in
@@ -199,8 +200,8 @@ fi
 }
 
 # GPS configuration
-gps_present=1
-[ $gps_present ] && {
+gps_present=$(($(i2cget -f -y 0 0x51 0x48) & 0x01))
+[ "$gps_present" -a -c "$gps_device" ] && {
 	echo "$pre: GPS UART: $gps_device" > /dev/console
 	ln -s $gps_device /dev/gpsdevice
 	# set gps baudrate to 115200
