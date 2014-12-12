@@ -1,8 +1,12 @@
 echo "Gateworks Ventana Android Boot script v1.01"
 
+# set some defaults
+test -n "$fs"    || fs=ext2
+test -n "$disk"  || disk=0
+test -n "$mem"   || mem="cma=384M"
 setenv bootargs enable_wait_mode=off
 setenv nextcon 0
-setenv bootargs "${bootargs}" console=ttymxc1,115200 cma=384M consoleblank=0
+setenv bootargs "${bootargs}" console=ttymxc1,115200 ${mem} consoleblank=0
 setenv loadaddr 10800000
 setenv fdt_addr 18000000
 
@@ -50,7 +54,14 @@ for p in ${panel}; do
 	setexpr nextcon $nextcon + 1
 
   elif itest.s "x${p}" == "xHDMI" ; then
-	test -n "$hdmi" || hdmi="1920x1280M@60"
+	test -n "$hdmi" || hdmi=1080p
+  	if itest.x "x${hdmi}" == "1080p" ; then
+		hdmi="1920x1080M@60"
+	elif itest.x "x${hdmi}" == "720p" ; then
+		hdmi="1280x720M@60"
+	elif itest.x "x${hdmi}" == "480p" ; then
+		hdmi="720x480M@60"
+	fi
 	echo "  mxcfb${nextcon}: HDMI ($hdmi)"
 	setenv bootargs "${bootargs}" video=mxcfb${nextcon}:dev=hdmi,bpp=32,${hdmi},if=RGB24
 	setexpr nextcon $nextcon + 1
@@ -75,8 +86,6 @@ fi
 # or mounted the filesystem if appropriate to get to this bootscript
 #
 # To Speed up boot set dtype manually
-test -n "$fs"    || fs=ext2
-test -n "$disk"  || disk=0
 if test -n "$dtype" ; then
 	echo "booting from $dtype"
 else
