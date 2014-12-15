@@ -194,7 +194,7 @@ fi
 		[ "$name" = "FreescaleAccelerometer" ] && {
 			echo $orientation \
 			  > /sys/devices/virtual/input/input${i}/position
-			echo "$pre: Accelerometer input{$i} pos$orientation" \
+			echo "$pre: Accelerometer input${i} pos$orientation" \
 			  > /dev/console
 		}
 		i=$((i+1))
