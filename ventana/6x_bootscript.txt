@@ -55,12 +55,12 @@ for p in ${panel}; do
 
   elif itest.s "x${p}" == "xHDMI" ; then
 	test -n "$hdmi" || hdmi=1080p
-	if itest.x "x${hdmi}" == "x1080p" ; then
-		hdmi="1920x1080M@60"
-	elif itest.x "x${hdmi}" == "x720p" ; then
-		hdmi="1280x720M@60"
-	elif itest.x "x${hdmi}" == "x480p" ; then
-		hdmi="720x480M@60"
+	if itest.s "x${hdmi}" == "x1080p" ; then
+		setenv hdmi "1920x1080M@60"
+	elif itest.s "x${hdmi}" == "x720p" ; then
+		setenv hdmi "1280x720M@60"
+	elif itest.s "x${hdmi}" == "x480p" ; then
+		setenv hdmi "720x480M@60"
 	fi
 	echo "  mxcfb${nextcon}: HDMI ($hdmi)"
 	setenv bootargs "${bootargs}" video=mxcfb${nextcon}:dev=hdmi,bpp=32,${hdmi},if=RGB24
