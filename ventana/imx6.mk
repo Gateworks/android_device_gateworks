@@ -57,7 +57,8 @@ PRODUCT_PACKAGES += \
 	sqlite3					\
 	libefence				\
 	powerdebug				\
-	i2c-tools
+	i2c-tools				\
+	TSCalibration
 
 # CANbus utils
 PRODUCT_PACKAGES += \
