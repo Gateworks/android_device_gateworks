@@ -5,7 +5,7 @@ test -n "$fs"    || fs=ext2
 test -n "$disk"  || disk=0
 test -n "$mem"   || mem="cma=384M"
 setenv nextcon 0
-setenv bootargs "console=ttymxc1,115200 ${mem} consoleblank=0
+setenv bootargs "console=${console},${baudrate} ${mem} consoleblank=0
 setenv loadaddr 10800000
 setenv fdt_addr 18000000
 
