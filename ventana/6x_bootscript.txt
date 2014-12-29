@@ -44,12 +44,12 @@ echo "Configuring kernel bootargs for display(s): $panel"
 for p in ${panel}; do
   if itest.s "x${p}" == "xHannstar-XGA" ; then
 	echo "  mxcfb${nextcon}: Freescale MXC-LVDS1"
-	setenv bootargs "${bootargs}" video=mxcfb${nextcon}:dev=ldb,bpp=32,LDB-XGA,if=RGB666
+	setenv bootargs "${bootargs}" video=mxcfb${nextcon}:dev=ldb,bpp=32,if=RGB666
 	setexpr nextcon $nextcon + 1
 
   elif itest.s "x${p}" == "xAUO-G070VW01" ; then
 	echo "  mxcfb${nextcon}: AUO G070VW01"
-	setenv bootargs "${bootargs}" video=mxcfb${nextcon}:dev=ldb,bpp=32,LDB-WVGA,if=RGB666
+	setenv bootargs "${bootargs}" video=mxcfb${nextcon}:dev=ldb,bpp=32,if=RGB666
 	setexpr nextcon $nextcon + 1
 
   elif itest.s "x${p}" == "xHDMI" ; then
