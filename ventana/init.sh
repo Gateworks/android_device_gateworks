@@ -48,10 +48,15 @@ led() {
 	local output=$3
 
 	echo "$pre: led $dev: $name" > /dev/console
+	[ -d /sys/class/leds/$dev ] || {
+		echo "$pre: Error: /sys/class/leds/$dev does not exist" > /dev/console
+		return
+	}
 	# allow all users to modify brightness
 	chown system.system /sys/class/leds/$dev/brightness
 	chmod 0666 /sys/class/leds/$dev/brightness
 
+	echo "$pre: setting $dev/$name to $output" > /dev/console
 	[ "$output" ] && echo $output > /sys/class/leds/$dev/brightness
 }
 
