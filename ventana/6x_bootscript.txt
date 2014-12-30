@@ -1,4 +1,4 @@
-echo "Gateworks Ventana Android Boot script v1.01"
+echo "Gateworks Ventana Android Boot script v1.02"
 
 # set some defaults
 test -n "$fs"    || fs=ext2
@@ -8,6 +8,7 @@ setenv nextcon 0
 setenv bootargs "console=${console},${baudrate} ${mem}"
 setenv loadaddr 10800000
 setenv fdt_addr 18000000
+setenv rd_addr  16000000
 
 if test -n "$tempfuse" ; then
 	setenv bootargs "${bootargs}" thermal.fusedata=$tempfuse
@@ -125,16 +126,16 @@ else
 fi
 
 setenv bootargs "${bootargs}" "${extra}"
-if ${fsload} ${loadaddr} boot/uImage; then
+if ${fsload} ${loadaddr} boot/uImage && ${fsload} ${rd_addr} boot/uramdisk.img; then
 	if ${fsload} ${fdt_addr} boot/${fdt_file}; then
 		echo Loaded DTB from boot/${fdt_file}
-		bootm ${loadaddr} - ${fdt_addr}
+		bootm ${loadaddr} ${rd_addr} ${fdt_addr}
 	elif ${fsload} ${fdt_addr} boot/${fdt_file1}; then
 		echo Loaded DTB from boot/${fdt_file1}
-		bootm ${loadaddr} - ${fdt_addr}
+		bootm ${loadaddr} ${rd_addr} ${fdt_addr}
 	elif ${fsload} ${fdt_addr} boot/${fdt_file2}; then
 		echo Loaded DTB from boot/${fdt_file2}
-		bootm ${loadaddr} - ${fdt_addr}
+		bootm ${loadaddr} ${rd_addr} ${fdt_addr}
 	else
 		echo "Error loading device-tree"
 	fi
