@@ -151,11 +151,11 @@ esac
 
 # Camera configuration
 # (landscape mode orient is 0, For portrait mode orient is 90)
-[ -r "${cvbs_in}" ] && {
+[ -r "${cvbs_in}" -a -d /sys/bus/i2c/devices/2-0020 ] && {
 	status=$(i2cget -f -y 2 0x20 0x10)
 	locked=$((status & 0x1))
-	state=
-	[ "$locked" ] && {
+	state=nosignal
+	[ "$locked" -eq 1 ] && {
 		standard=$((status & 0x70))
 		case "$standard" in
 			64) state="PAL";;
@@ -163,7 +163,7 @@ esac
 		esac
 	}
 	echo "$pre: cvbs_in:${cvbs} state=${state}" > /dev/console
-	[ "$state" ] || cvbs_in=
+	#[ "$state" ] || cvbs_in=
 	state_cvbs=$state
 }
 [ -r "${hdmi_in}" ] && {
@@ -173,7 +173,7 @@ esac
 		dir=/sys/devices/soc0/soc.1/2100000.aips-bus/21a8000.i2c/i2c-2/2-0048
 	#state="$(cat $dir/state)"
 	#echo "$pre: hdmi_in:${hdmi_in} state=${state}" > /dev/console
-	[ "$state" = "locked" ] || hdmi_in=
+	#[ "$state" = "locked" ] || hdmi_in=
 	state_hdmi=$state
 }
 setprop camera.disable_zsl_mode 1
