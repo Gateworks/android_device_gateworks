@@ -235,32 +235,6 @@ gps_present=$(($(i2cget -f -y 0 0x51 0x48) & 0x01))
 	echo "\$PSRF103,05,00,01,01*20" > /dev/gpsdevice # VTG
 }
 
-# GW16107 adapter support
-[ -d /sys/bus/i2c/devices/2-0021 ] && {
-	echo "$pre: Configuring GW16109 adapter" > /dev/console
-	base=$(cat /sys/bus/i2c/devices/2-0021/gpio/gpiochip*/base)
-
-	gpio 10 backlight_en 1
-	gpio $((base +  1)) can_stby 0
-	gpio $((base +  2)) digital_3 0
-	gpio $((base +  3)) digital_2 0
-	gpio $((base +  4)) digtial_1 0
-	gpio $((base +  5)) buzzer 0
-	gpio $((base +  8)) vdd_12p0_en 1
-	gpio $((base +  9)) lcd_3p3_en 1
-	gpio $((base + 10)) lcd_5p0_en 1
-	gpio $((base + 11)) lcd_12p0_en 1
-}
-
-# GW16109 display adapter support
-[ -d /sys/bus/i2c/devices/2-0049 ] && {
-	echo "$pre: Configuring GW16109 Display adapter" > /dev/console
-
-	led keypad keypad_backlight 255
-	led power_led1 power_led_red 0
-	led power_led2 power_led_blue 255
-}
-
 # initialize CAN bus
 gpio=$(getprop gpio.can_stby)
 [ "$gpio" -a -d /sys/class/net/can0 ] && {
