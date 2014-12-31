@@ -37,6 +37,9 @@ gpio() {
 	# allow all users to modify direction
 	chown system.system /sys/class/gpio/gpio${num}/direction
 	chmod 0666 /sys/class/gpio/gpio${num}/direction
+
+	# set property to map the name to device
+	setprop gpio.$name $num
 }
 
 # $1 device
@@ -58,6 +61,9 @@ led() {
 
 	echo "$pre: setting $dev/$name to $output" > /dev/console
 	[ "$output" ] && echo $output > /sys/class/leds/$dev/brightness
+
+	# set property to map the name to device
+	setprop hw.led.$name $dev
 }
 
 # get board from cmdline
@@ -90,21 +96,21 @@ hdmi_in=
 case "$board" in
 	GW552*)
 		# GPIO mappings
-		setprop gpio.dio0 16
-		setprop gpio.dio1 17
-		setprop gpio.dio2 19
-		setprop gpio.dio3 20
+		gpio 16 dio0
+		gpio 19 dio1
+		gpio 17 dio2
+		gpio 20 dio3
 		;;
 	GW54*)
 		orientation=0
 		gps_device=/dev/ttymxc4
 		# GPIO mappings
-		setprop gpio.dio0 9
-		setprop gpio.dio1 19
-		setprop gpio.dio2 41
-		setprop gpio.dio3 42
+		gpio 9 dio0
+		gpio 19 dio1
+		gpio 41 dio2
+		gpio 42 dio3
 		# CANbus
-		setprop gpio.can_stby 2
+		gpio 2 can_stby 0
 		# Video Capture
 		hdmi_in=/dev/video0
 		cvbs_in=/dev/video1
@@ -113,12 +119,12 @@ case "$board" in
 		orientation=3
 		gps_device=/dev/ttymxc4
 		# GPIO mappings
-		setprop gpio.dio0 16
-		setprop gpio.dio1 19
-		setprop gpio.dio2 17
-		setprop gpio.dio3 20
+		gpio 16 dio0
+		gpio 19 dio1
+		gpio 17 dio2
+		gpio 20 dio3
 		# CANbus
-		setprop gpio.can_stby 2
+		gpio 2 can_stby 0
 		# Video Capture
 		cvbs_in=/dev/video0
 		;;
@@ -126,22 +132,22 @@ case "$board" in
 		orientation=3
 		gps_device=/dev/ttymxc4
 		# GPIO mappings
-		setprop gpio.dio0 16
-		setprop gpio.dio1 19
-		setprop gpio.dio2 17
-		setprop gpio.dio3 20
+		gpio 16 dio0
+		gpio 19 dio1
+		gpio 17 dio2
+		gpio 20 dio3
 		# CANbus
-		setprop gpio.can_stby 9
+		gpio 9 can_stby 0
 		# Video Capture
 		cvbs_in=/dev/video0
 		;;
 	GW51*)
 		gps_device=/dev/ttymxc0
 		# GPIO mappings
-		setprop gpio.dio0 16
-		setprop gpio.dio1 19
-		setprop gpio.dio2 17
-		setprop gpio.dio3 20
+		gpio 16 dio0
+		gpio 19 dio1
+		gpio 17 dio2
+		gpio 20 dio3
 		# Video Capture
 		cvbs_in=/dev/video0
 		;;
@@ -229,49 +235,30 @@ gps_present=$(($(i2cget -f -y 0 0x51 0x48) & 0x01))
 	echo "\$PSRF103,05,00,01,01*20" > /dev/gpsdevice # VTG
 }
 
-# export DIO's and configure them all as inputs
-# but allow user 'system' to modify value and direction
-i=0
-while [ 1 ]; do
-	gpio=$(getprop gpio.dio${i})
-	[ "$gpio" ] || break
-	# export and configure as input
-	gpio ${gpio} MX6_DIO${i}
-	i=$((i+1))
-done
-
 # GW16107 adapter support
 [ -d /sys/bus/i2c/devices/2-0021 ] && {
 	echo "$pre: Configuring GW16109 adapter" > /dev/console
 	base=$(cat /sys/bus/i2c/devices/2-0021/gpio/gpiochip*/base)
 
-	gpio 10 LVDS_BACKLIGHT_EN 1
-	gpio $((base +  1)) CAN_EN# 0
-	gpio $((base +  2)) DIGITAL_3 0
-	gpio $((base +  3)) DIGITAL_2 0
-	gpio $((base +  4)) DIGTIAL_1 0
-	gpio $((base +  5)) BUZZER 0
-	gpio $((base +  8)) VDD_12P0_EN 1
-	gpio $((base +  9)) LCD_3P3_EN 1
-	gpio $((base + 10)) LCD_5P0_EN 1
-	gpio $((base + 11)) LCD_12P0_EN 1
-
-	setprop gpio.digital_3 $((base + 2))
-	setprop gpio.digital_2 $((base + 3))
-	setprop gpio.digital_1 $((base + 4))
-	setprop gpio.buzzer $((base + 5))
+	gpio 10 backlight_en 1
+	gpio $((base +  1)) can_stby 0
+	gpio $((base +  2)) digital_3 0
+	gpio $((base +  3)) digital_2 0
+	gpio $((base +  4)) digtial_1 0
+	gpio $((base +  5)) buzzer 0
+	gpio $((base +  8)) vdd_12p0_en 1
+	gpio $((base +  9)) lcd_3p3_en 1
+	gpio $((base + 10)) lcd_5p0_en 1
+	gpio $((base + 11)) lcd_12p0_en 1
 }
 
 # GW16109 display adapter support
 [ -d /sys/bus/i2c/devices/2-0049 ] && {
 	echo "$pre: Configuring GW16109 Display adapter" > /dev/console
 
-	led pca9685-led0 keypad_backlight 255
-	led pca9685-led1 power_led_red 0
-	led pca9685-led2 power_led_blue 255
-	setprop hw.led.keypad_backlight pca9685-led0
-	setprop hw.led.power_led_red pca9685-led1
-	setprop hw.led.power_led_blue pca9685-led2
+	led keypad keypad_backlight 255
+	led power_led1 power_led_red 0
+	led power_led2 power_led_blue 255
 }
 
 # initialize CAN bus
@@ -280,9 +267,6 @@ gpio=$(getprop gpio.can_stby)
 	echo "$pre: Configuring CANbus" > /dev/console
 	ip link set can0 type can $CAN_ARGS
 	ifconfig can0 up
-
-	# export CAN_STBY gpio and configure as output-low (enable)
-	gpio ${gpio} CAN_STBY 0
 }
 
 # bluetooth RFKILL fixup
