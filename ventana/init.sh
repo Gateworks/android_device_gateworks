@@ -94,6 +94,15 @@ gps_device=
 cvbs_in=
 hdmi_in=
 case "$board" in
+	GW551*)
+		# GPIO mappings
+		gpio 19 dio1
+		gpio 17 dio2
+		# CANbus
+		gpio 9 can_stby 0
+		# Video Capture
+		hdmi_in=/dev/video0
+		;;
 	GW552*)
 		# GPIO mappings
 		gpio 16 dio0
