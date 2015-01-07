@@ -3,7 +3,6 @@ echo "Gateworks Ventana Android Boot script v1.02"
 # set some defaults
 test -n "$fs"    || fs=ext2
 test -n "$disk"  || disk=0
-test -n "$mem"   || mem="cma=384M"
 setenv nextcon 0
 setenv bootargs "console=${console},${baudrate} ubi.mtd=2 ${mem}"
 setenv loadaddr 10800000
@@ -13,6 +12,19 @@ setenv rd_addr  16000000
 if test -n "$tempfuse" ; then
 	setenv bootargs "${bootargs}" thermal.fusedata=$tempfuse
 fi
+
+# memory configuration
+if test -n "$mem" ; then
+  echo "using mem from env: $mem"
+else
+  if itest.s "x${mem_mb}" == "x512" ; then
+    echo "Detected 512MB DRAM - adjusting GPU memory allocation"
+    setenv mem "galcore.contiguousSize=0x6000000 cma=256M"
+  else
+    setenv mem "cma=384M"
+  fi
+fi
+setenv bootargs "${bootargs}" "${mem}"
 
 # detect displays in the following priority: LVDS, HDMI
 # setenv panel to override detection for a single display:
