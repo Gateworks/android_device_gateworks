@@ -9,10 +9,6 @@ setenv loadaddr 10800000
 setenv fdt_addr 18000000
 setenv rd_addr  16000000
 
-if test -n "$tempfuse" ; then
-	setenv bootargs "${bootargs}" thermal.fusedata=$tempfuse
-fi
-
 # memory configuration
 if test -n "$mem" ; then
   echo "using mem from env: $mem"
