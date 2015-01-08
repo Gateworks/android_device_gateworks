@@ -19,6 +19,8 @@ on init
     symlink /mnt/media_rw/udisk1 /storage/udisk1
     mkdir /mnt/media_rw/sata 0755 system system
     symlink /mnt/media_rw/sata /storage/sata
+    mkdir /mnt/media_rw/nand 0755 system system
+    symlink /mnt/media_rw/nand /storage/sata
 
     # Support legacy paths
     symlink /storage/emulated/legacy /sdcard
