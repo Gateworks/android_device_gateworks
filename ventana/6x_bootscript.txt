@@ -5,7 +5,7 @@ test -n "$fs"    || fs=ext2
 test -n "$disk"  || disk=0
 test -n "$mem"   || mem="cma=384M"
 setenv nextcon 0
-setenv bootargs "console=${console},${baudrate} ${mem}"
+setenv bootargs "console=${console},${baudrate} ubi.mtd=2 ${mem}"
 setenv loadaddr 10800000
 setenv fdt_addr 18000000
 setenv rd_addr  16000000
@@ -115,7 +115,7 @@ setenv bootargs "${bootargs}" androidboot.hardware=freescale androidboot.console
 
 if itest.s "x${dtype}" == "xnand" ; then
 	echo "Booting from NAND..."
-	setenv bootargs "${bootargs}" androidboot.mode=nand ubi.mtd=2
+	setenv bootargs "${bootargs}" androidboot.mode=nand
 	# disable selinux until we get policy config figured out
 	setenv bootargs "${bootargs}" selinux=0
 	setenv fsload ubifsload
