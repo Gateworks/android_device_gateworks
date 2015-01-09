@@ -20,7 +20,14 @@ fi
 setenv bootargs "${bootargs}" "${mem}"
 
 # detect displays in the following priority: LVDS, HDMI
+# setenv panel to override detection for a single display:
+#    Hannstar-XGA|AUO-G070VW01|HDMI
+# or setenv video if you want multiple displays and you know what you are doing
+if test -n "$video" ; then
+  echo "using video config from env: $video"
+else
 if test -n "$panel" ; then
+  echo "using panel from env: $panel"
 else
   echo "Detecting displays..."
   i2c dev 2
@@ -89,6 +96,7 @@ while test "4" -ne $nextcon ; do
 	setenv bootargs "${bootargs}" video=mxcfb${nextcon}:off
 	setexpr nextcon $nextcon + 1
 done
+fi
 
 # boot disks
 test -n "$fs"    || fs=ext2
