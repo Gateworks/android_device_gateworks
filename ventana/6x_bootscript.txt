@@ -1,6 +1,8 @@
 echo "Gateworks Ventana Android Boot script v1.01"
 
-setenv bootargs enable_wait_mode=off
+# set some defaults
+test -n "$fs"    || fs=ext2
+test -n "$disk"  || disk=0
 setenv nextcon 0
 setenv bootargs "${bootargs}" console=${console},${baudrate} consoleblank=0
 setenv loadaddr 10800000
@@ -98,9 +100,14 @@ while test "4" -ne $nextcon ; do
 done
 fi
 
-# boot disks
-test -n "$fs"    || fs=ext2
-test -n "$disk"  || disk=0
+
+# detect dtype and bootdev by looking for kernel on media the bootloader
+# has mounted (in order of preference: usb/mmc/sata)
+#
+# This assumes the bootloader has already started the respective subsystem
+# or mounted the filesystem if appropriate to get to this bootscript
+#
+# To Speed up boot set dtype manually
 if test -n "$dtype" ; then
 	echo "Using dtype from env: $dtype"
 else
@@ -112,7 +119,7 @@ else
 	elif ${fs}load sata ${disk}:1 ${loadaddr} boot/uImage ; then
 		dtype=sata
 	fi
-	echo "dtype:$dtype"
+	echo "detected dtype:$dtype"
 fi
 if test -n "$bootdev" ; then
 	echo "Using androidboot.bootdev=$bootdev"
