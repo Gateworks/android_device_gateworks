@@ -4,7 +4,7 @@ echo "Gateworks Ventana Android Boot script v1.01"
 test -n "$fs"    || fs=ext2
 test -n "$disk"  || disk=0
 setenv nextcon 0
-setenv bootargs "${bootargs}" console=${console},${baudrate} consoleblank=0
+setenv bootargs console=${console},${baudrate} consoleblank=0
 setenv loadaddr 10800000
 setenv rd_addr  16000000
 
