@@ -92,7 +92,7 @@ done
 test -n "$fs"    || fs=ext2
 test -n "$disk"  || disk=0
 if test -n "$dtype" ; then
-	echo "booting from $dtype"
+	echo "Using dtype from env: $dtype"
 else
 	echo "Detecting boot device (dtype)..."
 	if ${fs}load usb ${disk}:1 10800000 boot/uImage ; then
