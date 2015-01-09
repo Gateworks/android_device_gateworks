@@ -2,10 +2,10 @@ echo "Gateworks Ventana Android Boot script v1.01"
 
 setenv bootargs enable_wait_mode=off
 setenv nextcon 0
-setenv bootargs $bootargs console=${console},${baudrate} vmalloc=400M consoleblank=0
+setenv bootargs "${bootargs}" console=${console},${baudrate} vmalloc=400M consoleblank=0
 
 if test -n "$tempfuse" ; then
-	setenv bootargs $bootargs thermal.fusedata=$tempfuse
+	setenv bootargs "${bootargs}" thermal.fusedata=$tempfuse
 fi
 
 # detect displays in the following priority: LVDS, HDMI
@@ -32,7 +32,7 @@ echo "Configuring kernel bootargs for display(s): $panel"
 for p in ${panel}; do
   if itest.s "x${p}" == "xHannstar-XGA" ; then
 	echo "  mxcfb${nextcon}: Freescale MXC-LVDS1"
-	setenv bootargs $bootargs video=mxcfb${nextcon}:dev=ldb,bpp=32,LDB-XGA,if=RGB666
+	setenv bootargs "${bootargs}" video=mxcfb${nextcon}:dev=ldb,bpp=32,LDB-XGA,if=RGB666
 	if test "0" -eq $nextcon; then
 		setenv fbmem "fbmem=20M"
 	else
@@ -42,7 +42,7 @@ for p in ${panel}; do
 
   elif itest.s "x${p}" == "xAUO-G070VW01" ; then
 	echo "  mxcfb${nextcon}: AUO G070VW01"
-	setenv bootargs $bootargs video=mxcfb${nextcon}:dev=ldb,bpp=32,LDB-WVGA,if=RGB666
+	setenv bootargs "${bootargs}" video=mxcfb${nextcon}:dev=ldb,bpp=32,LDB-WVGA,if=RGB666
 	if test "0" -eq $nextcon; then
 		setenv fbmem "fbmem=20M"
 	else
@@ -60,7 +60,7 @@ for p in ${panel}; do
 		setenv hdmi "720x480M@60"
 	fi
 	echo "  mxcfb${nextcon}: HDMI ($hdmi)"
-	setenv bootargs $bootargs video=mxcfb${nextcon}:dev=hdmi,bpp=32,${hdmi},if=RGB24
+	setenv bootargs "${bootargs}" video=mxcfb${nextcon}:dev=hdmi,bpp=32,${hdmi},if=RGB24
 	if test "0" -eq $nextcon; then
 		setenv fbmem "fbmem=48M"
 	else
@@ -75,7 +75,7 @@ done
 
 # disable remaining mxcfb devices
 while test "4" -ne $nextcon ; do
-	setenv bootargs $bootargs video=mxcfb${nextcon}:off
+	setenv bootargs "${bootargs}" video=mxcfb${nextcon}:off
 	setexpr nextcon $nextcon + 1
 done
 
@@ -121,7 +121,7 @@ else
 	echo "androidboot.bootdev=$bootdev"
 fi
 
-setenv bootargs $bootargs androidboot.hardware=freescale androidboot.bootdev=$bootdev androidboot.serialno=${serial#} androidboot.product.model=${model} ${extra}
+setenv bootargs "${bootargs}" androidboot.hardware=freescale androidboot.bootdev=$bootdev androidboot.serialno=${serial#} androidboot.product.model=${model} ${extra}
 
 ${fs}load ${dtype} ${disk}:1 10800000 boot/uImage && ${fs}load ${dtype} ${disk}:1 12800000 boot/uramdisk.img && bootm 10800000 12800000
 
