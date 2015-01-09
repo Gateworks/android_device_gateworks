@@ -95,7 +95,7 @@ fi
 #
 # To Speed up boot set dtype manually
 if test -n "$dtype" ; then
-	echo "booting from $dtype"
+	echo "Using dtype from env: $dtype"
 else
 	echo "Detecting boot device (dtype)..."
 	if ${fs}load usb ${disk}:1 ${loadaddr} boot/uImage ; then
