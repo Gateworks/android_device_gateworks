@@ -1,4 +1,4 @@
-echo "Gateworks Ventana Android Boot script v1.01"
+echo "Gateworks Ventana Android Boot script v1.02"
 
 # set some defaults
 test -n "$fs"    || fs=ext2
