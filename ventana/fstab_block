@@ -4,8 +4,8 @@
 # specify MF_CHECK, and must come before any filesystems that do specify MF_CHECK
 
 /devices/soc0/soc.1/2100000.aips-bus/2198000.usdhc/mmc_host auto vfat defaults voldmanaged=extsd:auto
-/devices/soc0/soc.1/2100000.aips-bus/2184000.usb/ci_hdrc.0  auto vfat defaults voldmanaged=udisk:auto
-/devices/soc0/soc.1/2100000.aips-bus/2184200.usb/ci_hdrc.1  auto vfat defaults voldmanaged=udisk1:auto
+/devices/soc0/soc.1/2100000.aips-bus/2184000.usb            auto vfat defaults voldmanaged=udisk:auto
+/devices/soc0/soc.1/2100000.aips-bus/2184200.usb            auto vfat defaults voldmanaged=udisk1:auto
 /devices/soc0/soc.1/2200000.sata/ahci                       auto vfat defaults voldmanaged=sata:auto
 
 $BD5	/system      ext4    ro                                                                               wait
