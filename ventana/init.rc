@@ -113,6 +113,9 @@ on boot
     # mount the debugfs
     mount debugfs none /sys/kernel/debug/
 
+    # ensure any user init script is executable
+    chmod 0755 /data/bin/init.sh
+
 # script to do some board-detection and board-specific setup
 service board-setup /system/bin/logwrapper /system/bin/init.sh
     class late_start

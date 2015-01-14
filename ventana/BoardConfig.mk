@@ -6,7 +6,9 @@ include device/fsl/imx6/soc/imx6dq.mk
 include device/gateworks/ventana/build_id.mk
 include device/fsl/imx6/BoardConfigCommon.mk
 # 380MB system image (prune to size needed for system apps)
-BOARD_SYSTEMIMAGE_PARTITION_SIZE := 398458880
+BOARD_SYSTEMIMAGE_PARTITION_SIZE := 380M
+# 100MB data image (prune to size needed for pre-installed/custom data/apps)
+BOARD_USERDATAIMAGE_PARTITION_SIZE := 100M
 
 BOARD_SOC_CLASS := IMX6
 BOARD_SOC_TYPE := IMX6DQ

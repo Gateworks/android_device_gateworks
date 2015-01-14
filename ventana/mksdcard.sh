@@ -116,7 +116,6 @@ sudo sfdisk -R ${diskname}${prefix}
 
 mkfs.ext4 -L BOOT ${diskname}${prefix}1
 mkfs.ext4 -L RECOVER ${diskname}${prefix}2
-mkfs.ext4 -L DATA ${diskname}${prefix}4
 mkfs.ext4 -L CACHE ${diskname}${prefix}6
 mkfs.ext4 -L VENDOR ${diskname}${prefix}7
 mkfs.ext4 -L MISC ${diskname}${prefix}8
@@ -124,12 +123,12 @@ sync && sudo sfdisk -R ${diskname}${prefix}
 
 # some slower systems need a sleep here to let the host OS catch up
 sync && sleep 10
-for n in 1 2 4 ; do
+for n in 1 2 ; do
    udisks --mount ${diskname}${prefix}${n}
 done
 # sanity check - I'm seeing that occasionally we continue on before the
-# parts are mounted
-[ -d /media/BOOT -a -d /media/RECOVER -a -d /media/DATA ] || {
+# partitions are mounted
+[ -d /media/BOOT -a -d /media/RECOVER ] || {
   echo "Error: mount not complete!"
   ls -l /media
   exit 1
@@ -138,12 +137,14 @@ done
 # BOOT: bootscripts, kernel, and ramdisk
 mkdir /media/BOOT/boot
 sudo cp -rfv out/target/product/$product/boot/* /media/BOOT/
-# RECOVER: bootscripts, kernel, and ramdisk-recovery.img
+# RECOVERY: bootscripts, kernel, and ramdisk-recovery.img
 sudo cp -rfv out/target/product/$product/uImage /media/RECOVER/
 sudo cp -rfv out/target/product/$product/uramdisk-recovery.img /media/RECOVER/
-# DATA: application data
-[ -d out/target/product/$product/data ] && \
-sudo cp -ravf out/target/product/$product/data/* /media/DATA/
+# DATA: user data
+sudo dd if=out/target/product/$product/userdata.img of=${diskname}${prefix}4
+sudo e2label ${diskname}${prefix}4 DATA
+sudo e2fsck -f ${diskname}${prefix}4
+sudo resize2fs ${diskname}${prefix}4
 # SYSTEM: system image
 sudo dd if=out/target/product/$product/system.img of=${diskname}${prefix}5
 sudo e2label ${diskname}${prefix}5 SYSTEM
