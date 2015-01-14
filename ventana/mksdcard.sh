@@ -18,6 +18,7 @@ fi
 
 echo "---------build SD card for product $product";
 
+# sanity check - make sure we have OUTDIR
 if ! [ -d out/target/product/$product ]; then
    echo "Missing out/target/product/$product";
    exit 1;
@@ -69,6 +70,16 @@ fi
 echo "reasonable disk $diskname, partitions ${diskname}${prefix}1..." ;
 umount ${diskname}${prefix}*
 umount gvfs
+
+# sanity check - make sure there are not conflicting removable storage
+# partitions mounted or left behind from a failed run
+[ -e /media/BOOT -o -e /media/RECOVER -o -e /media/DATA ] && {
+  echo "Error: content already exists in /media for BOOT/RECOVER/DATA parts"
+  echo "either you have a mounted removable storage device with conflicting"
+  echo "partition names, or you have files in /media that should not be there"
+  ls -l /media
+  exit 1
+}
 
 dd if=/dev/zero of=${diskname}${prefix} count=1 bs=1024 oflag=sync
 
