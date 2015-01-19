@@ -113,7 +113,7 @@ if test -n "$bootdev" ; then
 	echo "Using bootdev from env: $bootdev"
 else
 	if itest.s "x${dtype}" == "xmmc" ; then
-		bootdev=mmcblk2
+		bootdev=mmcblk0
 	else
 		bootdev=sda
 	fi
