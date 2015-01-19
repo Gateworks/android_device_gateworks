@@ -15,4 +15,6 @@ $BD7	/device      ext4    ro,nosuid,nodev                                       
 $BD1	/boot        ext4    defaults                                                                         defaults
 $BD2	/recovery    ext4    defaults                                                                         defaults
 $BD8	/misc        ext4    defaults                                                                         defaults
-/dev/ubi0_0     /mnt/media_rw/nand      ubifs 	ro                                      wait
+
+# uncomment if you wish to utilize NAND storage (must have valid ubi)
+#/dev/ubi0_0     /mnt/media_rw/nand      ubifs 	ro                                      wait
