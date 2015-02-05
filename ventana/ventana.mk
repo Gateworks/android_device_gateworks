@@ -24,6 +24,7 @@ PRODUCT_COPY_FILES +=	\
 
 PRODUCT_COPY_FILES +=	\
 	device/gateworks/common/input/tca8418.kl:system/usr/keylayout/tca8418.kl \
+	device/gateworks/common/input/EP0810M09.idc:system/usr/idc/EP0810M09.idc \
 	device/gateworks/common/input/TSC2007_Touchscreen.idc:system/usr/idc/TSC2007_Touchscreen.idc
 
 DEVICE_PACKAGE_OVERLAYS := device/gateworks/ventana/overlay
