@@ -1,0 +1,11 @@
+# quick press-and-release (held <700ms) of front-panel pushbutton
+key 256   POWER			WAKE
+
+# front panel pushbutton held >700ms (long-press)
+key 257   HOME			WAKE
+
+# user-eeprom section erased after 3 quick presses
+key 258   SEARCH		WAKE
+
+# tamper event
+key 259   POWER			WAKE
