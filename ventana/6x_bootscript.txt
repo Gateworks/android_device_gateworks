@@ -28,6 +28,7 @@ setenv bootargs "${bootargs}" "${mem}"
 # or setenv video if you want multiple displays and you know what you are doing
 if test -n "$video" ; then
   echo "using video config from env: $video"
+  setenv bootargs "${bootargs}" "${video}"
 else
 if test -n "$panel" ; then
   echo "using panel from env: $panel"
