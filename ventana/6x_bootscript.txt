@@ -22,47 +22,49 @@ else
 fi
 setenv bootargs "${bootargs}" "${mem}"
 
-# detect displays in the following priority: LVDS, HDMI
-# setenv panel to override detection for a single display:
-#    Hannstar-XGA|AUO-G070VW01|HDMI
-# or setenv video if you want multiple displays and you know what you are doing
+# detect displays in the following priority: HDMI, LVDS
+# setenv display to override detection for a single display
+# or setenv video if you want multiple displays
 if test -n "$video" ; then
   echo "using video config from env: $video"
   setenv bootargs "${bootargs}" "${video}"
 else
-if test -n "$panel" ; then
-  echo "using panel from env: $panel"
-else
-  echo "Detecting displays..."
-  i2c dev 2
-  if i2c probe 0x04 ; then
-	echo "  Freescale MXC-LVDS1 detected"
-	setenv panel $panel "Hannstar-XGA"
-  fi
-  if i2c probe 0x49 ; then
-	echo "  AUO G070VW01 with TSC2007 detected"
-	setenv panel $panel "AUO-G070VW01"
-  fi
-  if hdmidet ; then
+  if test -n "$display" ; then
+    echo "using display from env: $display"
+  elif test -n "$panel" ; then
+    echo "using display from env: $panel"
+    setenv display "$panel"
+  else
+    echo "Detecting displays..."
+    i2c dev 2
+    if hdmidet ; then
 	echo "  HDMI detected"
-	setenv panel $panel "HDMI"
+	setenv display "HDMI"
+    elif i2c probe 0x04 ; then
+	echo "  Freescale MXC-LVDS1 detected"
+	setenv display "LVDS"
+    elif i2c probe 0x14 ; then
+	echo "  DLC800FIGT3 detected"
+	setenv display "LVDS"
+    elif i2c probe 0x38 ; then
+	echo "  DLC700JMGT4 detected"
+	setenv display "LVDS"
+    fi
   fi
-fi
 
-# configure displays
-echo "Configuring kernel bootargs for display(s): $panel"
-for p in ${panel}; do
-  if itest.s "x${p}" == "xHannstar-XGA" ; then
-	echo "  mxcfb${nextcon}: Freescale MXC-LVDS1"
-	setenv bootargs "${bootargs}" video=mxcfb${nextcon}:dev=ldb,bpp=32,if=RGB666
-	setexpr nextcon $nextcon + 1
-
-  elif itest.s "x${p}" == "xAUO-G070VW01" ; then
-	echo "  mxcfb${nextcon}: AUO G070VW01"
-	setenv bootargs "${bootargs}" video=mxcfb${nextcon}:dev=ldb,bpp=32,if=RGB666
-	setexpr nextcon $nextcon + 1
-
-  elif itest.s "x${p}" == "xHDMI" ; then
+  # configure displays
+  echo "Configuring kernel bootargs for display(s): $display"
+  for p in ${display}; do
+    if itest.s "x${p}" == "xHannstar-XGA" ; then
+	setenv ptype "LVDS"
+    elif itest.s "x${p}" == "xDLC700JMGT4" ; then
+	setenv ptype "LVDS"
+    elif itest.s "x${p}" == "xDLC800FIGT3" ; then
+	setenv ptype "LVDS"
+    elif itest.s "x${p}" == "xLVDS" ; then
+	setenv ptype "LVDS"
+    elif itest.s "x${p}" == "xHDMI" ; then
+	setenv ptype "HDMI"
 	test -n "$hdmi" || hdmi=1080p
 	if itest.s "x${hdmi}" == "x1080p" ; then
 		setenv hdmi "1920x1080M@60"
@@ -71,20 +73,27 @@ for p in ${panel}; do
 	elif itest.s "x${hdmi}" == "x480p" ; then
 		setenv hdmi "720x480M@60"
 	fi
+    else
+        echo "${p} not supported"
+    fi
+
+    if itest.s "x${ptype}" == "xLVDS" ; then
+	echo "  mxcfb${nextcon}: LVDS ($p)"
+	setenv bootargs "${bootargs}" video=mxcfb${nextcon}:dev=ldb,bpp=32,if=RGB666
+	setexpr nextcon $nextcon + 1
+    elif itest.s "x${ptype}" == "xHDMI" ; then
 	echo "  mxcfb${nextcon}: HDMI ($hdmi)"
 	setenv bootargs "${bootargs}" video=mxcfb${nextcon}:dev=hdmi,bpp=32,${hdmi},if=RGB24
 	setexpr nextcon $nextcon + 1
+    fi
 
-  else
-        echo "${p} not supported"
-  fi
-done
+  done
 
-# disable remaining mxcfb devices
-while test "4" -ne $nextcon ; do
+  # disable remaining mxcfb devices
+  while test "4" -ne $nextcon ; do
 	setenv bootargs "${bootargs}" video=mxcfb${nextcon}:off
 	setexpr nextcon $nextcon + 1
-done
+  done
 fi
 
 
