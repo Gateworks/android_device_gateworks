@@ -18,11 +18,25 @@ fi
 
 echo "---------build SD card for product $product";
 
-# sanity check - make sure we have OUTDIR
-if ! [ -d out/target/product/$product ]; then
-   echo "Missing out/target/product/$product";
-   exit 1;
+# determine appropriate OUTDIR (where build artifacts are located)
+# - can be passed in env via OUTDIR
+# - will be out/target/product/$product if dir exists
+# - else current dir
+if ! [ -d "$OUTDIR" ]; then
+   if [ -d out/target/product/$product ]; then
+      OUTDIR=out/target/product/$product
+   else
+      OUTDIR=.
+   fi
 fi
+# verify build artifacts
+[ -d "$OUTDIR/boot" ] ||
+   { echo "Error: Missing directory: $OUTDIR/boot"; exit 1; }
+for i in uImage uramdisk-recovery.img userdata.img system.img; do
+   echo checking $OUTDIR/$i
+   [ -f "$OUTDIR/$i" ] ||
+      { echo "Error: Missing file: $OUTDIR/$i"; exit 1; }
+done
 
 # create list of block devices between 3772MB and 61035MB
 removable_disks() {
@@ -136,17 +150,17 @@ done
 
 # BOOT: bootscripts, kernel, and ramdisk
 mkdir /media/BOOT/boot
-sudo cp -rfv out/target/product/$product/boot/* /media/BOOT/
+sudo cp -rfv $OUTDIR/boot/* /media/BOOT/
 # RECOVERY: bootscripts, kernel, and ramdisk-recovery.img
-sudo cp -rfv out/target/product/$product/uImage /media/RECOVER/
-sudo cp -rfv out/target/product/$product/uramdisk-recovery.img /media/RECOVER/
+sudo cp -rfv $OUTDIR/uImage /media/RECOVER/
+sudo cp -rfv $OUTDIR/uramdisk-recovery.img /media/RECOVER/
 # DATA: user data
-sudo dd if=out/target/product/$product/userdata.img of=${diskname}${prefix}4
+sudo dd if=$OUTDIR/userdata.img of=${diskname}${prefix}4
 sudo e2label ${diskname}${prefix}4 DATA
 sudo e2fsck -f ${diskname}${prefix}4
 sudo resize2fs ${diskname}${prefix}4
 # SYSTEM: system image
-sudo dd if=out/target/product/$product/system.img of=${diskname}${prefix}5
+sudo dd if=$OUTDIR/system.img of=${diskname}${prefix}5
 sudo e2label ${diskname}${prefix}5 SYSTEM
 sudo e2fsck -f ${diskname}${prefix}5
 sudo resize2fs ${diskname}${prefix}5
