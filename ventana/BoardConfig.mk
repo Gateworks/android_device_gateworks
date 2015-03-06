@@ -145,6 +145,3 @@ USE_GPU_ALLOCATOR := true
 # Camera hal v2
 IMX_CAMERA_HAL_V2 := true
 
-
-# define frame buffer count
-NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
