@@ -106,6 +106,9 @@ on boot
     setprop wifi.interface wlan0
     setprop wlan.driver.status "ok"
 
+    # Set WiFi Display Source VideoBitRate Adaptive
+    setprop media.wfd.video-bitrate adaptive
+
     # RFKILL
     # re-enable radio (they get disabled in fsl/imx6.rc)
     write /sys/class/rfkill/rfkill0/state 1
