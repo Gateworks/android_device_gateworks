@@ -32,7 +32,7 @@ fi
 # verify build artifacts
 [ -d "$OUTDIR/boot" ] ||
    { echo "Error: Missing directory: $OUTDIR/boot"; exit 1; }
-for i in uImage uramdisk-recovery.img userdata.img system.img; do
+for i in boot/boot/uImage uramdisk-recovery.img userdata.img system.img; do
    echo checking $OUTDIR/$i
    [ -f "$OUTDIR/$i" ] ||
       { echo "Error: Missing file: $OUTDIR/$i"; exit 1; }
@@ -152,7 +152,7 @@ done
 mkdir /media/BOOT/boot
 sudo cp -rfv $OUTDIR/boot/* /media/BOOT/
 # RECOVERY: bootscripts, kernel, and ramdisk-recovery.img
-sudo cp -rfv $OUTDIR/uImage /media/RECOVER/
+sudo cp -rfv $OUTDIR/boot/boot/uImage /media/RECOVER/
 sudo cp -rfv $OUTDIR/uramdisk-recovery.img /media/RECOVER/
 # DATA: user data
 sudo dd if=$OUTDIR/userdata.img of=${diskname}${prefix}4
