@@ -1,102 +1,116 @@
 #!/bin/bash
-if [ $# -lt 1 ]; then
-	echo "Usage: $0 /dev/diskname [product=ventana] [--force]"
-	exit -1 ;
-fi
 
-force='';
-if [ $# -ge 2 ]; then
-   product=$2;
-   if [ $# -ge 3 ]; then
-      if [ "x--force" == "x$3" ]; then
-         force=yes;
-      fi
-   fi
-else
-   product=ventana;
-fi
+product=ventana
+verbose=0
+bootloader=1
+minmb=1500
+partoffset=1
+mnt=/tmp/$(basename $0).$$
+#LOG=$(basename $0).log
 
-echo "---------build SD card for product $product";
+debug() {
+  [ "$verbose" -gt 0 ] && echo "$@"
+  echo "DEBUG: $@" >> $LOG
+}
+
+cleanup() {
+  umount ${DEV}? 2>/dev/null
+  rm -rf ${mnt}
+}
+
+error() {
+  [ "$@" ] && echo "Error: $@"
+  echo "ERROR: $@" >> $LOG
+  cleanup
+  exit 1
+}
+
+trap "cleanup; exit;" SIGINT SIGTERM
+
+# parse cmdline options
+while [ "$1" ]; do
+  case "$1" in
+    --verbose|-v) verbose=$((verbose+1)); [ $verbose -gt 1 ] && LOG=1; shift;;
+    *) DEV=$1; shift;;
+  esac
+done
+
+# verify root
+[ $EUID -ne 0 ] && error "must be run as root"
+
+# verify dependencies
+for i in ls cat grep mount umount sfdisk sync mkfs.ext4 dd pv cp e2label e2fsck resize2fs rm awk; do
+  which $i 2>&1 >/dev/null
+  [ $? -eq 1 ] && error "missing '$i' - please install"
+done
+
+[ "$DEV" ] || {
+  echo ""
+  echo "Usage: $(basename 0) [OPTIONS] <blockdev>"
+  echo ""
+  echo "Options:"
+  echo " --force,-f     - force disk"
+  echo " --verbose,-v   - increase verbosity"
+  exit -1
+}
+
+echo "Gateworks Ventana Android disk imaging tool v1.01"
+[ "$LOG" ] && { echo "Logging to $LOG"; rm -f $LOG; }
+[ "$LOG" ] || LOG=/dev/null
+
+# verify output device
+[ -b "$DEV" ] || error "$DEV is not a valid block device"
+[ "$minmb" ] && {
+  size="$(cat /sys/class/block/$(basename $DEV)/size)"
+  size=$((size*512/1000/1000)) # convert to MB (512B blocks)
+  debug "$DEV is ${size}MB"
+  [ $size -lt $minmb ] && error "$DEV ${size}MB too small - ${minmb}MB required"
+}
+mounts="$(grep "^$DEV" /proc/mounts | awk '{print $1}')"
+[ "$mounts" ] && error "$DEV has mounted partitions: $mounts"
 
 # determine appropriate OUTDIR (where build artifacts are located)
 # - can be passed in env via OUTDIR
 # - will be out/target/product/$product if dir exists
 # - else current dir
-if ! [ -d "$OUTDIR" ]; then
-   if [ -d out/target/product/$product ]; then
-      OUTDIR=out/target/product/$product
-   else
-      OUTDIR=.
-   fi
-fi
+[ -d "$OUTDIR" ] || {
+  OUTDIR=.
+  [ -d out/target/product/$product ] && OUTDIR=out/target/product/$product
+}
+echo "Installing artifacts from $OUTDIR..."
+
 # verify build artifacts
-[ -d "$OUTDIR/boot" ] ||
-   { echo "Error: Missing directory: $OUTDIR/boot"; exit 1; }
-for i in boot/boot/uImage uramdisk-recovery.img userdata.img system.img; do
-   echo checking $OUTDIR/$i
-   [ -f "$OUTDIR/$i" ] ||
-      { echo "Error: Missing file: $OUTDIR/$i"; exit 1; }
+for i in boot/boot/uImage uramdisk-recovery.img userdata.img system.img SPL u-boot.img; do
+   debug "  checking file: $OUTDIR/$i"
+   [ -f "$OUTDIR/$i" ] || error "Missing file: $OUTDIR/$i"
 done
 
-# create list of block devices between 3772MB and 61035MB
-removable_disks() {
-	for f in `ls /dev/disk/by-path/* | grep -v part` ; do
-		diskname=$(basename `readlink $f`);
-		type=`cat /sys/class/block/$diskname/device/type` ;
-		size=`cat /sys/class/block/$diskname/size` ;
-		issd=0 ;
-		# echo "checking $diskname/$type/$size" ;
-		if [ $size -ge 3862528 ]; then
-			if [ $size -lt 64500000 ]; then
-				issd=1 ;
-			fi
-		fi
-		if [ "$issd" -eq "1" ]; then
-			echo -n "/dev/$diskname ";
-			# echo "removable disk /dev/$diskname, size $size, type $type" ;
-			#echo -n -e "\tremovable? " ; cat /sys/class/block/$diskname/removable ;
-		fi
-	done
-	echo;
-}
-diskname=$1
-removables=`removable_disks`
+echo "Installing on $DEV..." ;
 
-for disk in $removables ; do
-   echo "removable disk $disk" ;
-   if [ "$diskname" = "$disk" ]; then
-      matched=1 ;
-      break ;
-   fi
-done
+# zero first 1MB of data
+dd if=/dev/zero of=$DEV count=1 bs=1M oflag=sync status=none
+sync
 
-if [ -z "$matched" -a -z "$force" ]; then
-   echo "Invalid disk $diskname" ;
-   exit -1;
-fi
+[ $bootloader ] && {
+  echo "Installing bootloader..."
 
-prefix='';
+  # SPL (at 1KB offset)
+  echo "  installing SPL@1K..."
+  dd if=$OUTDIR/SPL of=$DEV bs=1K seek=1 oflag=sync status=none || error
 
-if [[ "$diskname" =~ "mmcblk" ]]; then
-   prefix=p
-fi
+  # UBOOT (at 69K offset)
+  echo "  installing UBOOT@69K..."
+  dd if=$OUTDIR/u-boot.img of=$DEV bs=1K seek=69 oflag=sync status=none || error
 
-echo "reasonable disk $diskname, partitions ${diskname}${prefix}1..." ;
-umount ${diskname}${prefix}*
-umount gvfs
-
-# sanity check - make sure there are not conflicting removable storage
-# partitions mounted or left behind from a failed run
-[ -e /media/BOOT -o -e /media/RECOVER -o -e /media/DATA ] && {
-  echo "Error: content already exists in /media for BOOT/RECOVER/DATA parts"
-  echo "either you have a mounted removable storage device with conflicting"
-  echo "partition names, or you have files in /media that should not be there"
-  ls -l /media
-  exit 1
+  # ENV (at 709KB offset)
+  [ "$UBOOTENV" -a -r "$UBOOTENV" ] && {
+    echo "  installing ENV@709K..."
+    dd if=$UBOOTENV of=$DEV bs=1K seek=709 oflag=sync status=none || error
+  }
+  sync || error "sync failed"
 }
 
-dd if=/dev/zero of=${diskname}${prefix} count=1 bs=1024 oflag=sync
-
+echo "Partitioning..."
 # Partitions:
 # 1:BOOT     ext4 20MB
 # 2:RECOVERY ext4 20MB
@@ -106,7 +120,7 @@ dd if=/dev/zero of=${diskname}${prefix} count=1 bs=1024 oflag=sync
 # 6:CACHE    ext4 512MB
 # 7:VENDOR   ext4 10MB
 # 8:MISC     ext4 10MB
-sudo sfdisk --force -uM ${diskname}${prefix} << EOF
+sfdisk --force --no-reread -uM $DEV >>$LOG 2>&1 << EOF
 ,20,83,*
 ,20,83
 ,1024,E
@@ -116,54 +130,77 @@ sudo sfdisk --force -uM ${diskname}${prefix} << EOF
 ,10,83
 ,10,83
 EOF
+[ $? -eq 0 ] || error "sfdisk failed"
+sync || error "sync failed"
+mkdir $mnt
 
-for n in `seq 1 8` ; do
-   if ! [ -e ${diskname}${prefix}$n ] ; then
-      echo "--------------missing ${diskname}${prefix}$n" ;
-      exit 1;
-   fi
-   sync
-done
-
-echo "all partitions present and accounted for!";
-sudo sfdisk -R ${diskname}${prefix}
-
-mkfs.ext4 -L BOOT ${diskname}${prefix}1
-mkfs.ext4 -L RECOVER ${diskname}${prefix}2
-mkfs.ext4 -L CACHE ${diskname}${prefix}6
-mkfs.ext4 -L VENDOR ${diskname}${prefix}7
-mkfs.ext4 -L MISC ${diskname}${prefix}8
-sync && sudo sfdisk -R ${diskname}${prefix}
-
-# some slower systems need a sleep here to let the host OS catch up
-sync && sleep 10
-for n in 1 2 ; do
-   udisks --mount ${diskname}${prefix}${n}
-done
-# sanity check - I'm seeing that occasionally we continue on before the
-# partitions are mounted
-[ -d /media/BOOT -a -d /media/RECOVER ] || {
-  echo "Error: mount not complete!"
-  ls -l /media
-  exit 1
+[ $bootloader ] && {
+  # adjust start of first partition to make room for SPL/UBOOT
+  while [ 1 ]; do
+    debug "  Reading partition table"
+    sfdisk --no-reread -d $DEV > $mnt/partitions.txt
+    [ $? -eq 0 ] && break
+  done
+  size=$(grep sdc1 $mnt/partitions.txt | sed -n 's/.*size=\([ 0-9]*\).*/\1/p')
+  sblock=$((partoffset*2048)) # 512B per block
+  eblock=$((size-sblock))
+  sed -i "s~/dev/sdc1.*~/dev/sdc1 : start=$sblock, size=$eblock, Id=83~" \
+    $mnt/partitions.txt
+  while [ 1 ]; do
+    debug "  Adjusting partition start offset to ${partoffset}MiB"
+    sfdisk --force --no-reread -L -uM $DEV >>$LOG 2>&1 < $mnt/partitions.txt
+    [ $? -eq 0 ] && break
+  done
+  sync || error "sync failed"
 }
 
+# sanity-check: verify partitions present
+for n in `seq 1 8` ; do
+   [ -e ${DEV}$n ] || error "  missing ${DEV}$n"
+done
+debug "  Partitioning complete"
+
+echo "Formating partitions..."
+mkfs.ext4 -q -L BOOT ${DEV}1 || error "mkfs BOOT"
+mkfs.ext4 -q -L RECOVER ${DEV}2 || error "mkfs RECOVER"
+mkfs.ext4 -q -L CACHE ${DEV}6 || error "mkfs CACHE"
+mkfs.ext4 -q -L VENDOR ${DEV}7 || error "mkfs VENDOR"
+mkfs.ext4 -q -L MISC ${DEV}8 || error "mkfs MISC"
+
+echo "Mounting partitions..."
+for n in 1 2 ; do
+   mkdir ${mnt}/${n}
+   debug "  mounting ${DEV}${n} to ${mnt}/${n}"
+   mount -t ext4 ${DEV}${n} ${mnt}/${n} || error "mount ${DEV}${n}"
+done
+
 # BOOT: bootscripts, kernel, and ramdisk
-mkdir /media/BOOT/boot
-sudo cp -rfv $OUTDIR/boot/* /media/BOOT/
+echo "Writing BOOT partition..."
+cp -rfv $OUTDIR/boot/* ${mnt}/1 >>$LOG || error
+sync && umount ${DEV}1 || error "failed umount"
+
 # RECOVERY: bootscripts, kernel, and ramdisk-recovery.img
-sudo cp -rfv $OUTDIR/boot/boot/uImage /media/RECOVER/
-sudo cp -rfv $OUTDIR/uramdisk-recovery.img /media/RECOVER/
+echo "Writing RECOVERY partition..."
+cp -rfv $OUTDIR/boot/boot/uImage ${mnt}/2 >>$LOG || error
+cp -rfv $OUTDIR/uramdisk-recovery.img ${mnt}/2 >>$LOG || error
+sync && umount ${DEV}2 || error "failed umount"
+
 # DATA: user data
-sudo dd if=$OUTDIR/userdata.img of=${diskname}${prefix}4
-sudo e2label ${diskname}${prefix}4 DATA
-sudo e2fsck -f ${diskname}${prefix}4
-sudo resize2fs ${diskname}${prefix}4
+echo "Writing DATA partition..."
+pv -petr $OUTDIR/userdata.img | dd of=${DEV}4 bs=4M oflag=sync status=none \
+  || error "dd"
+e2label ${DEV}4 DATA || error "e2label failed"
+e2fsck -y -f ${DEV}4 >>$LOG 2>&1 || error "e2fsck failed"
+resize2fs ${DEV}4 >>$LOG 2>&1 || error "resize2fs failed"
+sync
+
 # SYSTEM: system image
-sudo dd if=$OUTDIR/system.img of=${diskname}${prefix}5
-sudo e2label ${diskname}${prefix}5 SYSTEM
-sudo e2fsck -f ${diskname}${prefix}5
-sudo resize2fs ${diskname}${prefix}5
+echo "Writing SYSTEM partition..."
+pv -petr $OUTDIR/system.img | dd of=${DEV}5 bs=4M oflag=sync status=none \
+  || error "dd"
+e2label ${DEV}5 SYSTEM || error "e2label failed"
+e2fsck -y -f ${DEV}5 >>$LOG 2>&1 || error "e2fsck failed"
+resize2fs ${DEV}5 >>$LOG 2>&1 || error "resize2fs failed"
+sync
 
-sync && sudo umount ${diskname}${prefix}*
-
+cleanup
