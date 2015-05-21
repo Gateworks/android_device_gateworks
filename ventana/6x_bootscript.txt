@@ -1,4 +1,4 @@
-echo "Gateworks Ventana Android Boot script v1.02"
+echo "Gateworks Ventana Android Boot script v1.03"
 
 # set some defaults
 test -n "$fs"    || fs=ext2
@@ -96,6 +96,8 @@ else
   done
 fi
 
+# set minimum GPU frequency scaling
+setenv bootargs "${bootargs}" "galcore.initgpu3DMinClock=3"
 
 # detect dtype and bootdev by looking for kernel on media the bootloader
 # has mounted (in order of preference: usb/mmc/sata)
