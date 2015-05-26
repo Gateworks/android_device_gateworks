@@ -77,7 +77,7 @@ mounts="$(grep "^$DEV" /proc/mounts | awk '{print $1}')"
   OUTDIR=.
   [ -d out/target/product/$product ] && OUTDIR=out/target/product/$product
 }
-echo "Installing artifacts from $OUTDIR..."
+echo "Installing artifacts from $OUTDIR/"
 
 # verify build artifacts
 for i in boot/boot/uImage uramdisk-recovery.img userdata.img system.img SPL u-boot.img; do
@@ -141,13 +141,15 @@ mkdir $mnt
     sfdisk --no-reread -d $DEV > $mnt/partitions.txt
     [ $? -eq 0 ] && break
   done
-  size=$(grep sdc1 $mnt/partitions.txt | sed -n 's/.*size=\([ 0-9]*\).*/\1/p')
+  size=$(grep ${DEV}1 $mnt/partitions.txt | \
+	sed -n 's/.*size=\([ 0-9]*\).*/\1/p')
   sblock=$((partoffset*2048)) # 512B per block
   eblock=$((size-sblock))
-  sed -i "s~/dev/sdc1.*~/dev/sdc1 : start=$sblock, size=$eblock, Id=83~" \
+  debug "${DEV}: size=$size sblock=$sblock eblock=$eblock"
+  sed -i "s~${DEV}1.*~${DEV}1 : start=$sblock, size=$eblock, Id=83~" \
     $mnt/partitions.txt
+  debug "  Adjusting partition start offset to ${partoffset}MiB"
   while [ 1 ]; do
-    debug "  Adjusting partition start offset to ${partoffset}MiB"
     sfdisk --force --no-reread -L -uM $DEV >>$LOG 2>&1 < $mnt/partitions.txt
     [ $? -eq 0 ] && break
   done
