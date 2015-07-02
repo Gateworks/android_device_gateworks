@@ -57,7 +57,10 @@ PRODUCT_PACKAGES += \
 	sqlite3					\
 	libefence				\
 	powerdebug				\
-	i2c-tools				\
+	i2cdetect				\
+	i2cget					\
+	i2cset					\
+	i2cdump					\
 	TSCalibration
 
 # CANbus utils
