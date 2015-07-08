@@ -61,6 +61,7 @@ PRODUCT_PACKAGES += \
 	i2cget					\
 	i2cset					\
 	i2cdump					\
+	gsc_update				\
 	TSCalibration
 
 # CANbus utils
