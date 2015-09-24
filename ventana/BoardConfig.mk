@@ -100,6 +100,10 @@ BOARD_WLAN_DEVICE                := wl12xx_mac80211
 BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_wl12xx
 SKIP_WPA_SUPPLICANT_RTL          := y
 SKIP_WPA_SUPPLICANT_CONF         := y
+# AP
+HOSTAPD_VERSION                  := VER_0_8_x
+BOARD_HOSTAPD_DRIVER             := NL80211
+BOARD_HOSTAPD_PRIVATE_LIB        := lib_driver_cmd_wl12xx
 
 
 #
