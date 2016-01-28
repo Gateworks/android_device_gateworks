@@ -211,9 +211,9 @@ hdmi_in=
 case "$board" in
 	GW551*)
 		# GPIO & PWM mappings
-		pwm /soc0/soc.1/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \
+		pwm /soc0/soc.0/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \
 			|| gpio 19 dio1
-		pwm /soc0/soc.1/2000000.aips-bus/2088000.pwm:0 pwm3 1000000 500000 1 \
+		pwm /soc0/soc.0/2000000.aips-bus/2088000.pwm:0 pwm3 1000000 500000 1 \
 			|| gpio 17 dio2
 		# Leds
 		led user1 frontgreen
@@ -227,9 +227,9 @@ case "$board" in
 	GW552*)
 		# GPIO & PWM mappings
 		gpio 16 dio0
-		pwm /soc0/soc.1/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \
+		pwm /soc0/soc.0/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \
 			|| gpio 19 dio1
-		pwm /soc0/soc.1/2000000.aips-bus/2088000.pwm:0 pwm3 1000000 500000 1 \
+		pwm /soc0/soc.0/2000000.aips-bus/2088000.pwm:0 pwm3 1000000 500000 1 \
 			|| gpio 17 dio2
 		gpio 20 dio3
 		# Leds
@@ -243,14 +243,14 @@ case "$board" in
 		orientation=0
 		gps_device=/dev/ttymxc4
 		# GPIO & PWM mappings
-		pwm /soc0/soc.1/2000000.aips-bus/2080000.pwm:0 pwm1 1000000 500000 1 \
-		u|| gpio 9 dio0
-		pwm /soc0/soc.1/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \
+		pwm /soc0/soc.0/2000000.aips-bus/2080000.pwm:0 pwm1 1000000 500000 1 \
+			|| gpio 9 dio0
+		pwm /soc0/soc.0/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \
 			|| gpio 19 dio1
-		pwm /soc0/soc.1/2000000.aips-bus/2088000.pwm:0 pwm3 1000000 500000 1 \
+		pwm /soc0/soc.0/2000000.aips-bus/2088000.pwm:0 pwm3 1000000 500000 1 \
 			|| gpio 41 dio2
 		# DIO:pwm4 shared with LVDS backlight and requires alt pinmux
-		#pwm /soc0/soc.1/2000000.aips-bus/208c000.pwm:0 pwm4 1000000 500000 1 \
+		#pwm /soc0/soc.0/2000000.aips-bus/208c000.pwm:0 pwm4 1000000 500000 1 \
 		#	|| gpio 42 dio3
 		# Leds
 		led user1 frontgreen
@@ -269,9 +269,9 @@ case "$board" in
 		gps_device=/dev/ttymxc4
 		# GPIO & PWM mappings
 		gpio 16 dio0
-		pwm /soc0/soc.1/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \
+		pwm /soc0/soc.0/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \
 			|| gpio 19 dio1
-		pwm /soc0/soc.1/2000000.aips-bus/2088000.pwm:0 pwm3 1000000 500000 1 \
+		pwm /soc0/soc.0/2000000.aips-bus/2088000.pwm:0 pwm3 1000000 500000 1 \
 			|| gpio 17 dio2
 		gpio 20 dio3
 		# Leds
@@ -290,9 +290,9 @@ case "$board" in
 		gps_device=/dev/ttymxc4
 		# GPIO & PWM mappings
 		gpio 16 dio0
-		pwm /soc0/soc.1/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \
+		pwm /soc0/soc.0/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \
 			|| gpio 19 dio1
-		pwm /soc0/soc.1/2000000.aips-bus/2088000.pwm:0 pwm3 1000000 500000 1 \
+		pwm /soc0/soc.0/2000000.aips-bus/2088000.pwm:0 pwm3 1000000 500000 1 \
 			|| gpio 17 dio2
 		gpio 20 dio3
 		# Leds
@@ -310,11 +310,11 @@ case "$board" in
 		gps_device=/dev/ttymxc0
 		# GPIO & PWM mappings
 		gpio 16 dio0
-		pwm /soc0/soc.1/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \
+		pwm /soc0/soc.0/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \
 			|| gpio 19 dio1
-		pwm /soc0/soc.1/2000000.aips-bus/2088000.pwm:0 pwm3 1000000 500000 1 \
+		pwm /soc0/soc.0/2000000.aips-bus/2088000.pwm:0 pwm3 1000000 500000 1 \
 			|| gpio 17 dio2
-		pwm /soc0/soc.1/2000000.aips-bus/208c000.pwm:0 pwm4 1000000 500000 1 \
+		pwm /soc0/soc.0/2000000.aips-bus/208c000.pwm:0 pwm4 1000000 500000 1 \
 			|| gpio 20 dio3
 		# Leds
 		led user1 frontgreen
