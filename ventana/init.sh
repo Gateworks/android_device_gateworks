@@ -38,8 +38,86 @@ gpio() {
 	chown system.system /sys/class/gpio/gpio${num}/direction
 	chmod 0666 /sys/class/gpio/gpio${num}/direction
 
+	# allow all users to modify active_low (input inverter)
+	chown system.system /sys/class/gpio/gpio${num}/active_low
+	chmod 0666 /sys/class/gpio/gpio${num}/active_low
+	echo 0 > /sys/class/gpio/gpio$num/active_low
+	# allow all users to modify edge (interrupt trigger setting)
+	chown system.system /sys/class/gpio/gpio${num}/edge
+	chmod 0666 /sys/class/gpio/gpio${num}/edge
+	echo both > /sys/class/gpio/gpio$num/edge
+
 	# set property to map the name to device
-	setprop gpio.$name $num
+	setprop hw.gpio.$name /sys/class/gpio/gpio${num}/
+}
+
+# $1 devpath
+# $2 name
+# $3 period
+# $4 duty cycle
+# $5 enable
+pwm() {
+	local devpath=${1%%:*}
+	local num=${1##*:}
+	local name=$2
+	local period=$3
+	local duty=$4
+	local enabled=${5:-0}
+	local chip=
+
+	[ -d /sys/class/pwm/ ] || {
+		echo "$pre: Error: no /sys/class/pwm/ found" > /dev/console
+		return 1
+	}
+
+	# finding the pwm controller that matches this imx pwm number by address
+	for pwmchip in $(ls /sys/class/pwm/pwmchip*); do
+		local check=$(ls -l $pwmchip)
+		[ "$check" != "${check//$devpath}" ] && {
+			# once found, record pwmchip path
+			chip=$pwmchip
+			break
+		}
+	done
+
+	# if chip was not found, return
+	[ "$chip" ] || {
+		echo "$pre: $name failed: no pwm configured with device path of $devpath" \
+		 > /dev/console
+		return 1
+	}
+
+	# otherwise export sysfs node and set values
+	echo $num > "${chip}/export"
+	[ -d ${chip}/pwm${num} ] || {
+		echo "$pre: $name failed: pwm$num of $devpath ($chip)" \
+		 > /dev/console
+		return 1
+	}
+	echo $period > "${chip}/pwm${num}/period"
+	echo $duty > "${chip}/pwm${num}/duty_cycle"
+	echo $enable > "${chip}/pwm${num}/enable"
+
+	# allow all users to modify pwm control nodes
+	chown system.system ${chip}/pwm${num}/period
+	chmod 0666 ${chip}/pwm${num}/period
+
+	chown system.system ${chip}/pwm${num}/duty_cycle
+	chmod 0666 ${chip}/pwm${num}/duty_cycle
+
+	chown system.system ${chip}/pwm${num}/enable
+	chmod 0666 ${chip}/pwm${num}/enable
+
+	chown system.system ${chip}/pwm${num}/polarity
+	chmod 0666 ${chip}/pwm${num}/polarity
+
+	# set property to map the name to device
+	setprop hw.pwm.$name ${chip}/pwm${num}/
+
+	echo "$pre: setting ${chip##*/pwm/}/pwm${num}/ to $name" \
+	 > /dev/console
+
+	return 0
 }
 
 # $1 device
@@ -55,15 +133,52 @@ led() {
 		echo "$pre: Error: /sys/class/leds/$dev does not exist" > /dev/console
 		return
 	}
-	# allow all users to modify brightness
+	# allow all users to modify brightness and trigger
 	chown system.system /sys/class/leds/$dev/brightness
 	chmod 0666 /sys/class/leds/$dev/brightness
+	chown system.system /sys/class/leds/$dev/trigger
+	chmod 0666 /sys/class/leds/$dev/trigger
 
 	echo "$pre: setting $dev/$name to $output" > /dev/console
 	[ "$output" ] && echo $output > /sys/class/leds/$dev/brightness
 
 	# set property to map the name to device
-	setprop hw.led.$name $dev
+	setprop hw.led.$name /sys/class/leds/${dev}/
+}
+
+hwmon() {
+	local dev
+	local name
+	local label
+	local sensor
+
+	[ -d /sys/class/hwmon/ ] || {
+		echo "$pre: Error: /sys/class/hwmon/ does not exist" > /dev/console
+		return
+	}
+
+	for dev in $(ls /sys/class/hwmon/); do
+		#imx
+		[ -e /sys/class/hwmon/${dev}/name ] &&
+		[ $(cat /sys/class/hwmon/${dev}/name) == "imx_thermal_zone" ] && {
+			echo "$pre: setting ${dev} to imx" > /dev/console
+			# set property to map the name to device
+			setprop hw.hwmon.imx_cpu_crit_temp /sys/class/hwmon/${dev}/temp1_crit
+			setprop hw.hwmon.imx_cpu_temp /sys/class/hwmon/${dev}/temp1_input
+		}
+		#gsc
+		[ -e /sys/class/hwmon/${dev}/device/name ] &&
+		[ $(cat /sys/class/hwmon/${dev}/device/name) == "gsp" ] && {
+			echo "$pre: setting ${dev} to gsc" > /dev/console
+			for label in $(ls /sys/class/hwmon/${dev}/device/ | grep label); do
+				sensor="${label%%_*}_input"
+				name=$(cat /sys/class/hwmon/${dev}/device/${label})
+				# set property to map the name to device
+				setprop hw.hwmon.gsc_${name} /sys/class/hwmon/${dev}/device/${sensor}
+			done
+			#May want to set properties for fanX_pointX nodes
+		}
+	done
 }
 
 # get board from cmdline
@@ -95,29 +210,54 @@ cvbs_in=
 hdmi_in=
 case "$board" in
 	GW551*)
-		# GPIO mappings
-		gpio 19 dio1
-		gpio 17 dio2
+		# GPIO & PWM mappings
+		pwm /soc0/soc.1/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \
+			|| gpio 19 dio1
+		pwm /soc0/soc.1/2000000.aips-bus/2088000.pwm:0 pwm3 1000000 500000 1 \
+			|| gpio 17 dio2
+		# Leds
+		led user1 frontgreen
+		# HWMon
+		hwmon
 		# CANbus
 		gpio 9 can_stby 0
 		# Video Capture
 		hdmi_in=/dev/video0
 		;;
 	GW552*)
-		# GPIO mappings
+		# GPIO & PWM mappings
 		gpio 16 dio0
-		gpio 19 dio1
-		gpio 17 dio2
+		pwm /soc0/soc.1/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \
+			|| gpio 19 dio1
+		pwm /soc0/soc.1/2000000.aips-bus/2088000.pwm:0 pwm3 1000000 500000 1 \
+			|| gpio 17 dio2
 		gpio 20 dio3
+		# Leds
+		led user1 frontgreen
+		led user2 frontred
+		led user3 local 0
+		# HWMon
+		hwmon
 		;;
 	GW54*)
 		orientation=0
 		gps_device=/dev/ttymxc4
-		# GPIO mappings
-		gpio 9 dio0
-		gpio 19 dio1
-		gpio 41 dio2
-		gpio 42 dio3
+		# GPIO & PWM mappings
+		pwm /soc0/soc.1/2000000.aips-bus/2080000.pwm:0 pwm1 1000000 500000 1 \
+		u|| gpio 9 dio0
+		pwm /soc0/soc.1/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \
+			|| gpio 19 dio1
+		pwm /soc0/soc.1/2000000.aips-bus/2088000.pwm:0 pwm3 1000000 500000 1 \
+			|| gpio 41 dio2
+		# DIO:pwm4 shared with LVDS backlight and requires alt pinmux
+		#pwm /soc0/soc.1/2000000.aips-bus/208c000.pwm:0 pwm4 1000000 500000 1 \
+		#	|| gpio 42 dio3
+		# Leds
+		led user1 frontgreen
+		led user2 frontred
+		led user3 local 0
+		# HWMon
+		hwmon
 		# CANbus
 		gpio 2 can_stby 0
 		# Video Capture
@@ -127,11 +267,19 @@ case "$board" in
 	GW53*)
 		orientation=3
 		gps_device=/dev/ttymxc4
-		# GPIO mappings
+		# GPIO & PWM mappings
 		gpio 16 dio0
-		gpio 19 dio1
-		gpio 17 dio2
+		pwm /soc0/soc.1/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \
+			|| gpio 19 dio1
+		pwm /soc0/soc.1/2000000.aips-bus/2088000.pwm:0 pwm3 1000000 500000 1 \
+			|| gpio 17 dio2
 		gpio 20 dio3
+		# Leds
+		led user1 frontgreen
+		led user2 frontred
+		led user3 local 0
+		# HWMon
+		hwmon
 		# CANbus
 		gpio 2 can_stby 0
 		# Video Capture
@@ -140,11 +288,19 @@ case "$board" in
 	GW52*)
 		orientation=3
 		gps_device=/dev/ttymxc4
-		# GPIO mappings
+		# GPIO & PWM mappings
 		gpio 16 dio0
-		gpio 19 dio1
-		gpio 17 dio2
+		pwm /soc0/soc.1/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \
+			|| gpio 19 dio1
+		pwm /soc0/soc.1/2000000.aips-bus/2088000.pwm:0 pwm3 1000000 500000 1 \
+			|| gpio 17 dio2
 		gpio 20 dio3
+		# Leds
+		led user1 frontgreen
+		led user2 frontred
+		led user3 local 0
+		# HWMon
+		hwmon
 		# CANbus
 		gpio 9 can_stby 0
 		# Video Capture
@@ -152,11 +308,19 @@ case "$board" in
 		;;
 	GW51*)
 		gps_device=/dev/ttymxc0
-		# GPIO mappings
+		# GPIO & PWM mappings
 		gpio 16 dio0
-		gpio 19 dio1
-		gpio 17 dio2
-		gpio 20 dio3
+		pwm /soc0/soc.1/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \
+			|| gpio 19 dio1
+		pwm /soc0/soc.1/2000000.aips-bus/2088000.pwm:0 pwm3 1000000 500000 1 \
+			|| gpio 17 dio2
+		pwm /soc0/soc.1/2000000.aips-bus/208c000.pwm:0 pwm4 1000000 500000 1 \
+			|| gpio 20 dio3
+		# Leds
+		led user1 frontgreen
+		led user2 frontred
+		# HWMon
+		hwmon
 		# Video Capture
 		cvbs_in=/dev/video0
 		;;
