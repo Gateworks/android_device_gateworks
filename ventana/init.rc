@@ -94,8 +94,8 @@ on boot
     # Set rotation to 270 to cofigure as portrait mode
     setprop ro.sf.hwrotation 0
 
-    # Set the density to 160dpi, default 128dpi is not good
-    setprop ro.sf.lcd_density 160
+    # Setting density=0 will cause density to be calculated at runtime
+    #setprop ro.sf.lcd_density 160
 
     # Set extsd access permission
     setprop persist.sampling_profiler 1
