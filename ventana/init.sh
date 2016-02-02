@@ -232,6 +232,8 @@ gps_present=$(($(i2cget -f -y 0 0x51 0x48) & 0x01))
 [ "$gps_present" -a -c "$gps_device" ] && {
 	echo "$pre: GPS UART: $gps_device" > /dev/console
 	ln -s $gps_device /dev/gpsdevice
+	chown system.gps $gps_device
+	chmod 0660 $gps_device
 	# set gps baudrate to 115200
 	busybox stty -F /dev/gpsdevice 4800
 	echo "\$PSRF100,1,115200,8,1,0*05" > /dev/gpsdevice
