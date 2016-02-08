@@ -7,6 +7,7 @@ PRODUCT_MANUFACTURER := Freescale
 
 # Android infrastructures
 PRODUCT_PACKAGES += \
+	GateworksDemo				\
 	Launcher3				\
 	LiveWallpapers				\
 	LiveWallpapersPicker			\
