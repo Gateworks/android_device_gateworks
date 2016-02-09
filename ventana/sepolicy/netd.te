@@ -1,3 +1,0 @@
-# for hostapd
-allow netd cgroup:dir add_name;
-allow netd self:capability { setuid setgid };

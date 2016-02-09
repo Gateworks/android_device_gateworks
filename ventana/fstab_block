@@ -8,13 +8,15 @@
 /devices/soc0/soc.1/2100000.aips-bus/2184200.usb            auto vfat defaults voldmanaged=udisk1:auto
 /devices/soc0/soc.1/2200000.sata/ahci                       auto vfat defaults voldmanaged=sata:auto
 
-$BD5	/system      ext4    ro                                                                               wait
+$BD5	/system      ext4    ro,barrier=1                                                                               wait
 $BD4	/data        ext4    nosuid,nodev,nodiratime,noatime,noauto_da_alloc,errors=panic                     wait,encryptable=footer
 $BD6	/cache       ext4    nosuid,nodev                                                                     wait
 $BD7	/device      ext4    ro,nosuid,nodev                                                                  wait
 $BD1	/boot        ext4    defaults                                                                         defaults
 $BD2	/recovery    ext4    defaults                                                                         defaults
 $BD8	/misc        ext4    defaults                                                                         defaults
+
+/dev/block/zram0	none	swap	defaults zramsize=314572800
 
 # uncomment if you wish to utilize NAND storage (must have valid ubi)
 #/dev/ubi0_0     /mnt/media_rw/nand      ubifs 	ro                                      wait

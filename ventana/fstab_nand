@@ -14,3 +14,5 @@
 /dev/ubi0_3     /cache          ubifs   nosuid,nodev                            wait
 /dev/ubi0_4     /device         ubifs   nosuid,nodev                            wait
 /dev/ubi0_5     /data           ubifs   nosuid,nodev,nodiratime,noatime         wait
+
+/dev/block/zram0	none	swap	defaults zramsize=314572800

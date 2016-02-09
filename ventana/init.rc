@@ -1,4 +1,5 @@
 import init.${ro.hardware}.usb.rc
+import init.${ro.hardware}.${ro.soc}.rc
 
 on init
     start watchdogd
@@ -28,6 +29,21 @@ on init
     symlink /storage/emulated/legacy /storage/sdcard0
     symlink /mnt/shell/emulated/0 /storage/emulated/legacy
 
+    # setup the global environment
+    export SHM_MOUNTPOINT /mnt/shm
+    export LIGHTSENSOR_PATH /sys/class/i2c-adapter/i2c-1/1-0044
+    export VPU_FW_PATH /system/lib/firmware/vpu
+    export CODEC_SHM_PATH /mnt/shm
+    export CORE_REGISTER_FILE /system/etc/core_register
+    export COMPONENT_REGISTER_FILE /system/etc/component_register
+    export CONTENTPIPE_REGISTER_FILE /system/etc/contentpipe_register
+
+    # disable cursor blink for fbcon, if no splash screen support
+    write /sys/class/graphics/fbcon/cursor_blink 0
+
+    # deattch the fbcon as hdmi hotplug conflict with fbcon
+    write /sys/class/vtconsole/vtcon1/bind 0
+
 on boot
 
     # Set permission for IIM node
@@ -52,8 +68,28 @@ on boot
     setprop media.omxgm.enable-scan 1
     setprop rw.VIDEO_RENDER_NAME video_render.surface
 
-    # Set OpenGLES version
-    setprop ro.opengles.version 196608
+    # Tweak the mmc device read ahead buffer size
+    write /sys/block/mmcblk0/queue/read_ahead_kb 2048
+
+    # ALSA mixer naming define
+    setprop alsa.mixer.playback.master Playback
+    setprop alsa.mixer.capture.master Capture
+    setprop alsa.mixer.playback.speaker Playback
+    setprop alsa.mixer.playback.headset Headphone
+    setprop alsa.mixer.capture.headset Capture
+
+    # Prepare for wifi
+    setprop wifi.interface wlan0
+    setprop wifi.ap.interface wlan0
+
+    # Prepare for bluetooth
+    chmod 665 /sys/class/rfkill/rfkill0/state
+    chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/state
+    write /sys/class/rfkill/rfkill0/state 0
+
+    # Prepare for RIL
+    setprop gsm.ril.delay 15
+    setprop ro.ril.wake_lock_timeout 300
 
     # Set rotation to 270 to cofigure as portrait mode
     setprop ro.sf.hwrotation 0
@@ -102,12 +138,8 @@ on boot
     # bluetooth
     setprop hw.bluetooth 1
 
-    # wifi
-    setprop wifi.interface wlan0
-    setprop wlan.driver.status "ok"
-
     # Set WiFi Display Source VideoBitRate Adaptive
-    setprop media.wfd.video-bitrate adaptive
+    setprop media.wfd.video-bitrate 3000000
 
     # RFKILL
     # re-enable radio (they get disabled in fsl/imx6.rc)
@@ -119,6 +151,49 @@ on boot
     # ensure any user init script is executable
     chmod 0755 /data/bin/init.sh
 
+on charger
+    # Enable Power modes and set the CPU Freq Sampling rates
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "powersave"
+    write /sys/devices/system/cpu/cpufreq/ondemand/up_threshold 90
+    write /sys/devices/system/cpu/cpufreq/ondemand/sampling_rate 50000
+    write /sys/devices/system/cpu/cpufreq/ondemand/io_is_busy 1
+    write /sys/devices/system/cpu/cpufreq/ondemand/sampling_down_factor 4
+    write /sys/devices/system/cpu/cpu1/online 0
+    write /sys/devices/system/cpu/cpu2/online 0
+    write /sys/devices/system/cpu/cpu3/online 0
+
+on property:sys.boot_completed=1
+# Set default CPU frequency governor
+# Set timer 40ms, min sample 60ms,hispeed at cpufreq MAX freq in freq_table at load 40%
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor interactive
+    write /sys/devices/system/cpu/cpufreq/interactive/go_maxspeed_load 80
+    write /sys/devices/system/cpu/cpufreq/interactive/timer_rate 40000
+    write /sys/devices/system/cpu/cpufreq/interactive/min_sample_time 60000
+    write /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load 40
+    #write /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq 792000
+# change interactive atrrubuties permissions when interactive is actived
+on property:sys.interactive="active"
+    chown system root /sys/devices/system/cpu/cpufreq/interactive/timer_rate
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/timer_rate
+    chown system root /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
+    chown system root /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
+    chown system root /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load
+    chown system root /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
+    chown system root /sys/devices/system/cpu/cpufreq/interactive/boost
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/boost
+    chown system root /sys/devices/system/cpu/cpufreq/interactive/boostpulse
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/boostpulse
+    chown system root /sys/devices/system/cpu/cpufreq/interactive/input_boost
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/input_boost
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/boostpulse_duration
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/boostpulse_duration
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/io_is_busy
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/io_is_busy
+
 # script to do some board-detection and board-specific setup
 service board-setup /system/bin/logwrapper /system/bin/init.sh
     class late_start
@@ -126,18 +201,41 @@ service board-setup /system/bin/logwrapper /system/bin/init.sh
     group root
     oneshot
 
-# wpa_supplicant
-service wpa_supplicant /system/bin/logwrapper /system/bin/wpa_supplicant \
-      -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf \
-      -O/data/misc/wifi/sockets -e/data/misc/wifi/entropy.bin \
-      -g@android:wpa_wlan0
-    socket wpa_wlan0 dgram 660 wifi wifi
+service wpa_supplicant /system/bin/wpa_supplicant \
+    -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf \
+    -O/data/misc/wifi/sockets \
+    -e/data/misc/wifi/entropy.bin -g@android:wpa_wlan0
     class late_start
+    socket wpa_wlan0 dgram 660 wifi wifi
     disabled
     oneshot
 
-# eth1 dhcp support
+service dhcpcd_wlan0 /system/bin/dhcpcd -aABDKL
+    class main
+    disabled
+    oneshot
+
+service dhcpcd_eth0 /system/bin/dhcpcd -ABKL
+    class main
+    disabled
+    oneshot
+
 service dhcpcd_eth1 /system/bin/dhcpcd -ABKL
+    class main
+    disabled
+    oneshot
+
+service dhcpcd_bt-pan /system/bin/dhcpcd -ABKL
+    class main
+    disabled
+    oneshot
+
+service iprenew_wlan0 /system/bin/dhcpcd -n
+    class main
+    disabled
+    oneshot
+
+service iprenew_eth0 /system/bin/dhcpcd -n
     class main
     disabled
     oneshot
@@ -147,9 +245,41 @@ service iprenew_eth1 /system/bin/dhcpcd -n
     disabled
     oneshot
 
-# Set watchdog timer to 30 seconds and pet it every 10 seconds to get a 20 second margin
-service watchdogd /sbin/watchdogd 10 20
-    class core
+service iprenew_bt-pan /system/bin/dhcpcd -n
+    class main
+    disabled
+    oneshot
+
+service hostapd /system/bin/hostapd /data/misc/wifi/hostapd.conf
+    socket hostapd_wlan0 dgram 660 root wifi
+    user root
+    group wifi
+    oneshot
+    disabled
+
+service ril-daemon /system/bin/rild
+    class main
+    socket rild stream 660 root radio
+   socket rild-debug stream 660 radio system
+    socket rild-ppp stream 660 radio system
+    user root
+    group radio cache inet misc audio sdcard_rw log
+
+service pppd_gprs /etc/ppp/init.gprs-pppd
+    class main
+    user root
+    group radio cache inet misc
+    disabled
+    oneshot
+
+service wifi_mac /system/bin/sh /system/etc/check_wifi_mac.sh
+    class late_start
+    oneshot
+
+# virtual sdcard daemon running as media_rw (1023)
+# default 4 threads have better performance to 2 threads.
+service sdcard /system/bin/sdcard -l -t4 /data/media /mnt/shell/emulated 1023 1023
+    class late_start
 
 on fs
     # mount partitions
@@ -166,3 +296,10 @@ on fs
     #insmod /system/lib/modules/rt2x00usb.ko
     #insmod /system/lib/modules/rt2800lib.ko
     #insmod /system/lib/modules/rt2800usb.ko
+
+on post-fs
+    # Turn on swap
+    swapon_all /fstab.freescale
+
+    # Swap in only 1 page at a time
+    write /proc/sys/vm/page-cluster 0

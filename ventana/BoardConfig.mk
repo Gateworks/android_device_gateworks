@@ -5,6 +5,7 @@
 include device/fsl/imx6/soc/imx6dq.mk
 include device/gateworks/ventana/build_id.mk
 include device/fsl/imx6/BoardConfigCommon.mk
+include device/fsl-proprietary/gpu-viv/fsl-gpu.mk
 # 380MB system image (prune to size needed for system apps)
 BOARD_SYSTEMIMAGE_PARTITION_SIZE := 380M
 # 100MB data image (prune to size needed for pre-installed/custom data/apps)
@@ -13,6 +14,10 @@ BOARD_USERDATAIMAGE_PARTITION_SIZE := 100M
 BOARD_SOC_CLASS := IMX6
 BOARD_SOC_TYPE := IMX6DQ
 PRODUCT_MODEL := Gateworks Ventana
+
+USE_OPENGL_RENDERER := true
+TARGET_CPU_SMP := true
+TARGET_RELEASETOOLS_EXTENSIONS := device/fsl/imx6
 
 #
 # Kernel
@@ -53,14 +58,30 @@ TARGET_BOARD_DTS_CONFIG := \
 #  kernel_imx/drivers/net/wireless/rt2x00/rt2x00lib.ko:system/lib/modules/
 
 BOARD_SEPOLICY_DIRS := \
-  device/fsl/ventana/sepolicy
+  device/fsl/imx6/sepolicy \
+  device/gateworks/ventana/sepolicy
 
 BOARD_SEPOLICY_UNION := \
-  app.te \
-  file_contexts \
-  fs_use \
+  domain.te \
+  system_app.te \
+  system_server.te \
   untrusted_app.te \
-  genfs_contexts
+  sensors.te \
+  init_shell.te \
+  bluetooth.te \
+  kernel.te \
+  mediaserver.te \
+  file_contexts \
+  genfs_contexts \
+  fs_use \
+  rild.te \
+  init.te \
+  netd.te \
+  bootanim.te \
+  dnsmasq.te \
+  recovery.te \
+  device.te \
+  zygote.te
 
 #
 # Bootloader
@@ -94,16 +115,14 @@ endif
 #
 # Wireless
 #
-BOARD_WPA_SUPPLICANT_DRIVER      := NL80211
-WPA_SUPPLICANT_VERSION           := VER_0_8_X
-BOARD_WLAN_DEVICE                := wl12xx_mac80211
-BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_wl12xx
-SKIP_WPA_SUPPLICANT_RTL          := y
-SKIP_WPA_SUPPLICANT_CONF         := y
+# STA
+BOARD_WPA_SUPPLICANT_DRIVER      ?= NL80211
+BOARD_WPA_SUPPLICANT_PRIVATE_LIB ?= private_lib_driver_cmd
+WPA_SUPPLICANT_VERSION           ?= VER_2_1_DEVEL
 # AP
-HOSTAPD_VERSION                  := VER_0_8_x
-BOARD_HOSTAPD_DRIVER             := NL80211
-BOARD_HOSTAPD_PRIVATE_LIB        := lib_driver_cmd_wl12xx
+HOSTAPD_VERSION                  ?= VER_0_8_x
+BOARD_HOSTAPD_DRIVER             ?= NL80211
+BOARD_HOSTAPD_PRIVATE_LIB        ?= private_lib_driver_cmd
 
 
 #
@@ -128,13 +147,7 @@ BOARD_HAS_SENSOR := true
 # Bluetooth
 #
 BOARD_HAVE_BLUETOOTH := true
-BOARD_HAVE_BLUETOOTH_BCM := true
-# This requires a patched Bluedroid that supports bt_usb via the broadcom
-# vendor lib
 BLUETOOTH_HCI_USE_USB := true
-# if not defined uses hardware/broadcom/libbt/include/vnd_generic_usb.txt
-#BOARD_BLUEDROID_VENDOR_CONF := device/gateworks/ventana/bluetooth/vnd_ventana.
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/gateworks/ventana/bluetooth
 
 
 # GPU
