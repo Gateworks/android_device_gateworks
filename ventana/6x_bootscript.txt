@@ -147,8 +147,6 @@ setenv bootargs "${bootargs}" androidboot.hardware=freescale androidboot.console
 if itest.s "x${dtype}" == "xnand" ; then
 	echo "Booting from NAND..."
 	setenv bootargs "${bootargs}" androidboot.mode=nand
-	# disable selinux until we get policy config figured out
-	setenv bootargs "${bootargs}" selinux=0
 	setenv fsload ubifsload
 else
 	echo "Booting from block device ${bootdev}..."
