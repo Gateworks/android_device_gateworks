@@ -80,7 +80,7 @@ mounts="$(grep "^$DEV" /proc/mounts | awk '{print $1}')"
 echo "Installing artifacts from $OUTDIR/"
 
 # verify build artifacts
-for i in boot/boot/uImage uramdisk-recovery.img userdata.img system.img SPL u-boot.img; do
+for i in boot/boot/uImage recovery/boot/uImage userdata.img system.img SPL u-boot.img; do
    debug "  checking file: $OUTDIR/$i"
    [ -f "$OUTDIR/$i" ] || error "Missing file: $OUTDIR/$i"
 done
@@ -183,8 +183,7 @@ sync && umount ${DEV}1 || error "failed umount"
 
 # RECOVERY: bootscripts, kernel, and ramdisk-recovery.img
 echo "Writing RECOVERY partition..."
-cp -rfv $OUTDIR/boot/boot/uImage ${mnt}/2 >>$LOG || error
-cp -rfv $OUTDIR/uramdisk-recovery.img ${mnt}/2 >>$LOG || error
+cp -rfv $OUTDIR/recovery/boot/* ${mnt}/2 >>$LOG || error
 sync && umount ${DEV}2 || error "failed umount"
 
 # DATA: user data
