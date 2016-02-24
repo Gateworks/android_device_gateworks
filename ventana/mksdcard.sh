@@ -117,7 +117,7 @@ echo "Partitioning..."
 # 3:extended partition table
 # 4:DATA     ext4 (remainder)
 # 5:SYSTEM   ext4 512MB
-# 6:CACHE    ext4 512MB
+# 6:CACHE    ext4 256MB
 # 7:VENDOR   ext4 10MB
 # 8:MISC     ext4 10MB
 sfdisk --force --no-reread -uM $DEV >>$LOG 2>&1 << EOF
@@ -126,7 +126,7 @@ sfdisk --force --no-reread -uM $DEV >>$LOG 2>&1 << EOF
 ,1024,E
 ,,83
 ,512,83
-,50,83
+,256,83
 ,10,83
 ,10,83
 EOF
