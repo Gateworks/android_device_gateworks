@@ -119,7 +119,6 @@ echo "Partitioning..."
 # 5:SYSTEM   ext4 512MB
 # 6:CACHE    ext4 256MB
 # 7:VENDOR   ext4 10MB
-# 8:MISC     ext4 10MB
 sfdisk --force --no-reread -uM $DEV >>$LOG 2>&1 << EOF
 ,20,83,*
 ,20,83
@@ -127,7 +126,6 @@ sfdisk --force --no-reread -uM $DEV >>$LOG 2>&1 << EOF
 ,,83
 ,512,83
 ,256,83
-,10,83
 ,10,83
 EOF
 [ $? -eq 0 ] || error "sfdisk failed"
@@ -157,7 +155,7 @@ mkdir $mnt
 }
 
 # sanity-check: verify partitions present
-for n in `seq 1 8` ; do
+for n in `seq 1 7` ; do
    [ -e ${DEV}$n ] || error "  missing ${DEV}$n"
 done
 debug "  Partitioning complete"
@@ -167,7 +165,6 @@ mkfs.ext4 -q -L BOOT ${DEV}1 || error "mkfs BOOT"
 mkfs.ext4 -q -L RECOVER ${DEV}2 || error "mkfs RECOVER"
 mkfs.ext4 -q -L CACHE ${DEV}6 || error "mkfs CACHE"
 mkfs.ext4 -q -L VENDOR ${DEV}7 || error "mkfs VENDOR"
-mkfs.ext4 -q -L MISC ${DEV}8 || error "mkfs MISC"
 
 echo "Mounting partitions..."
 for n in 1 2 ; do
