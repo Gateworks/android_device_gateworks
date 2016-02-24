@@ -17,7 +17,6 @@ PRODUCT_MODEL := Gateworks Ventana
 
 USE_OPENGL_RENDERER := true
 TARGET_CPU_SMP := true
-TARGET_RELEASETOOLS_EXTENSIONS := device/fsl/imx6
 PRODUCT_SUPPORTS_VERITY := false
 
 #
