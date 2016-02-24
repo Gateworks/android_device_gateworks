@@ -6,10 +6,10 @@ include device/fsl/imx6/soc/imx6dq.mk
 include device/gateworks/ventana/build_id.mk
 include device/fsl/imx6/BoardConfigCommon.mk
 include device/fsl-proprietary/gpu-viv/fsl-gpu.mk
-# 380MB system image (prune to size needed for system apps)
-BOARD_SYSTEMIMAGE_PARTITION_SIZE := 380M
+# 360MB system image (prune to size needed for system apps)
+BOARD_SYSTEMIMAGE_PARTITION_SIZE := 377487360
 # 100MB data image (prune to size needed for pre-installed/custom data/apps)
-BOARD_USERDATAIMAGE_PARTITION_SIZE := 100M
+BOARD_USERDATAIMAGE_PARTITION_SIZE := 104857600
 
 BOARD_SOC_CLASS := IMX6
 BOARD_SOC_TYPE := IMX6DQ
@@ -18,6 +18,7 @@ PRODUCT_MODEL := Gateworks Ventana
 USE_OPENGL_RENDERER := true
 TARGET_CPU_SMP := true
 TARGET_RELEASETOOLS_EXTENSIONS := device/fsl/imx6
+PRODUCT_SUPPORTS_VERITY := false
 
 #
 # Kernel
