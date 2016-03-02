@@ -95,7 +95,7 @@ on boot
     setprop ro.sf.hwrotation 0
 
     # Setting density=0 will cause density to be calculated at runtime
-    #setprop ro.sf.lcd_density 160
+    setprop ro.sf.lcd_density 160
 
     # Set extsd access permission
     setprop persist.sampling_profiler 1
