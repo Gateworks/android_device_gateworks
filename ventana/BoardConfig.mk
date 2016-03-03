@@ -94,23 +94,18 @@ TARGET_BOOTLOADER_CONFIG := gwventana_config
 # Filesystem
 #
 BUILD_TARGET_FS ?= ext4
-include device/fsl/imx6/imx6_target_fs.mk
-TARGET_RECOVERY_FSTAB = device/gateworks/ventana/fstab_nand
+
+TARGET_RECOVERY_FSTAB = device/gateworks/ventana/fstab_block device/gateworks/ventana/fstab_nand
 PRODUCT_COPY_FILES += device/gateworks/ventana/fstab_nand:root/fstab_nand
 PRODUCT_COPY_FILES += device/gateworks/ventana/fstab_block:root/fstab_block
-
-# we don't support sparse image.
-TARGET_USERIMAGES_SPARSE_EXT_DISABLED := true
-
-# Generated NAND images
-TARGET_USERIMAGES_USE_UBIFS = true
-
-# 2G geometry
-ifeq ($(TARGET_USERIMAGES_USE_UBIFS),true)
+TARGET_USERIMAGES_USE_UBIFS := true
+TARGET_USERIMAGES_USE_EXT4 := true
 UBI_ROOT_INI := device/gateworks/ventana/ubi/ubinize.ini
 TARGET_MKUBIFS_ARGS := -F -m 4096 -e 248KiB -c 8124 -x zlib
 TARGET_UBIRAW_ARGS := -m 4096 -p 256KiB -s 4096 $(UBI_ROOT_INI)
-endif
+
+# we don't support sparse image.
+TARGET_USERIMAGES_SPARSE_EXT_DISABLED := true
 
 
 #
