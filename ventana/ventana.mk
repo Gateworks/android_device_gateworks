@@ -58,3 +58,11 @@ PRODUCT_COPY_FILES += \
 #PRODUCT_COPY_FILES += \
 	frameworks/native/data/etc/android.hardware.wifi.direct.xml:system/etc/permissions/android.hardware.wifi.direct.xml \
 	frameworks/native/data/etc/android.hardware.sensor.light.xml:system/etc/permissions/android.hardware.sensor.light.xml \
+
+HAVE_FSL_IMX_IPU := true
+TARGET_HAVE_IMX_GRALLOC := true
+TARGET_HAVE_IMX_HWCOMPOSER = true
+
+# Freescale Extended Codec support
+-include external/fsl_vpu_omx/codec_env.mk
+-include external/fsl_imx_omx/codec_env.mk
