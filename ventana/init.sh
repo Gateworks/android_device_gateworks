@@ -21,34 +21,42 @@ gpio() {
 	local num=$1
 	local name=$2
 	local output=$3
+	local path=
 
 	echo "$pre: gpio$num: $name" > /dev/console
 	[ -d /sys/class/gpio/gpio$num ] || {
 		echo $num > /sys/class/gpio/export
 	}
+	path=/sys/class/gpio/gpio${num}
 	[ "$output" ] && {
-		echo out > /sys/class/gpio/gpio$num/direction
-		echo $output > /sys/class/gpio/gpio$num/value
+		echo out > $path/direction
+		echo $output > $path/value
 	}
 
 	# allow all users to modify value
-	chown system.system /sys/class/gpio/gpio${num}/value
-	chmod 0666 /sys/class/gpio/gpio${num}/value
+	chown system.system $path/value
+	chmod 0666 $path/value
 	# allow all users to modify direction
-	chown system.system /sys/class/gpio/gpio${num}/direction
-	chmod 0666 /sys/class/gpio/gpio${num}/direction
+	chown system.system $path/direction
+	chmod 0666 $path/direction
 
 	# allow all users to modify active_low (input inverter)
-	chown system.system /sys/class/gpio/gpio${num}/active_low
-	chmod 0666 /sys/class/gpio/gpio${num}/active_low
-	echo 0 > /sys/class/gpio/gpio$num/active_low
+	chown system.system $path/active_low
+	chmod 0666 $path/active_low
+	echo 0 > $path/active_low
 	# allow all users to modify edge (interrupt trigger setting)
-	chown system.system /sys/class/gpio/gpio${num}/edge
-	chmod 0666 /sys/class/gpio/gpio${num}/edge
-	echo both > /sys/class/gpio/gpio$num/edge
+	chown system.system $path/edge
+	chmod 0666 $path/edge
 
 	# set property to map the name to device
-	setprop hw.gpio.$name /sys/class/gpio/gpio${num}/
+	setprop hw.gpio.$name "$path/"
+
+	# restore security context
+	path=$(readlink -f /sys/class/gpio/gpio${num})
+	restorecon $path/value
+	restorecon $path/direction
+	restorecon $path/active_low
+	restorecon $path/edge
 }
 
 # $1 devpath
@@ -94,6 +102,8 @@ pwm() {
 		 > /dev/console
 		return 1
 	}
+
+	# configure
 	echo $period > "${chip}/pwm${num}/period"
 	echo $duty > "${chip}/pwm${num}/duty_cycle"
 	echo $enable > "${chip}/pwm${num}/enable"
@@ -101,13 +111,10 @@ pwm() {
 	# allow all users to modify pwm control nodes
 	chown system.system ${chip}/pwm${num}/period
 	chmod 0666 ${chip}/pwm${num}/period
-
 	chown system.system ${chip}/pwm${num}/duty_cycle
 	chmod 0666 ${chip}/pwm${num}/duty_cycle
-
 	chown system.system ${chip}/pwm${num}/enable
 	chmod 0666 ${chip}/pwm${num}/enable
-
 	chown system.system ${chip}/pwm${num}/polarity
 	chmod 0666 ${chip}/pwm${num}/polarity
 
@@ -116,6 +123,13 @@ pwm() {
 
 	echo "$pre: setting ${chip##*/pwm/}/pwm${num}/ to $name" \
 	 > /dev/console
+
+	# restore security context
+	chip=$(readlink -f $chip)
+	restorecon "${chip}/pwm${num}/enable"
+	restorecon "${chip}/pwm${num}/period"
+	restorecon "${chip}/pwm${num}/duty_cycle"
+	restorecon "${chip}/pwm${num}/polarity"
 
 	return 0
 }

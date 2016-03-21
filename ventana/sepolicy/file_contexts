@@ -1,2 +1,16 @@
 /dev/ubi0_4                     u:object_r:block_device:s0
 /dev/ubi0_5                     u:object_r:block_device:s0
+# PWM
+/sys/devices/soc0/soc.0/2000000.aips-bus/2088000.pwm/pwm/pwmchip0/pwm0/enable     u:object_r:pwm_device:s0
+/sys/devices/soc0/soc.0/2000000.aips-bus/.*\.pwm/pwm/pwmchip[0-9]+/pwm0/enable     u:object_r:pwm_device:s0
+/sys/devices/soc0/soc.0/2000000.aips-bus/.*\.pwm/pwm/pwmchip[0-9]+/pwm0/period     u:object_r:pwm_device:s0
+/sys/devices/soc0/soc.0/2000000.aips-bus/.*\.pwm/pwm/pwmchip[0-9]+/pwm0/duty_cycle u:object_r:pwm_device:s0
+/sys/devices/soc0/soc.0/2000000.aips-bus/.*\.pwm/pwm/pwmchip[0-9]+/pwm0/polarity   u:object_r:pwm_device:s0
+# GPIO
+/sys/devices/soc0/soc.0/2000000.aips-bus/.*\.gpio/gpio/gpio[0-9]+/value            u:object_r:gpio_device:s0
+/sys/devices/soc0/soc.0/2000000.aips-bus/.*\.gpio/gpio/gpio[0-9]+/direction        u:object_r:gpio_device:s0
+/sys/devices/soc0/soc.0/2000000.aips-bus/.*\.gpio/gpio/gpio[0-9]+/active_low       u:object_r:gpio_device:s0
+/sys/devices/soc0/soc.0/2000000.aips-bus/.*\.gpio/gpio/gpio[0-9]+/edge             u:object_r:gpio_device:s0
+# LED
+/sys/devices/soc0/leds\.[0-9]+/leds/.*/trigger                                     u:object_r:led_device:s0
+/sys/devices/soc0/leds\.[0-9]+/leds/.*/brightness                                  u:object_r:led_device:s0

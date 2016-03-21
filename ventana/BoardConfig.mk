@@ -63,6 +63,7 @@ BOARD_SEPOLICY_DIRS := \
   device/gateworks/ventana/sepolicy
 
 BOARD_SEPOLICY_UNION := \
+  gateworks_util.te \
   domain.te \
   system_app.te \
   system_server.te \

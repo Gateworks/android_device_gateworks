@@ -1,0 +1,8 @@
+type gpio_device, fs_type, sysfs_type, mlstrustedobject;
+allow platform_app gpio_device:file rw_file_perms;
+
+type led_device, fs_type, sysfs_type, mlstrustedobject;
+allow platform_app led_device:file rw_file_perms;
+
+type pwm_device, fs_type, sysfs_type, mlstrustedobject;
+allow platform_app pwm_device:file rw_file_perms;
