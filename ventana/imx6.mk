@@ -143,7 +143,7 @@ PRODUCT_PACKAGES += \
 
 # gps related lib
 PRODUCT_PACKAGES += \
-	gps.ventana
+	gps.default
 
 # drm related lib
 PRODUCT_PACKAGES += \

@@ -49,7 +49,9 @@ on boot
     # Set permission for IIM node
     symlink /dev/mxs_viim /dev/mxc_mem
 
-    setprop ro.kernel.android.gps /dev/gpsdevice
+    # GPS
+    setprop ro.kernel.android.gps gpsdevice
+    setprop ro.kernel.android.gpsttybaud 115200
 
     # Enable Tethering in the Settings
     setprop ro.tether.denied false
