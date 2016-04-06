@@ -438,6 +438,3 @@ chmod 666 /sys/class/rfkill/rfkill1/state
 echo 1 > /sys/class/bluetooth/hci0/rfkill0/state
 # USB perms
 chmod -R 777 /dev/bus/usb
-
-# execute user-specifc init script
-[ -x /data/bin/init.sh ] && /data/bin/init.sh

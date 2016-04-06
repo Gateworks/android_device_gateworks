@@ -201,6 +201,7 @@ service board-setup /system/bin/logwrapper /system/bin/init.sh
     class late_start
     user root
     group root
+    seclabel u:r:board_setup:s0
     oneshot
 
 service wpa_supplicant /system/bin/wpa_supplicant \
