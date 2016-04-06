@@ -7,7 +7,6 @@ echo "Gateworks Ventana Android 5.x Boot script v1.03"
 #
 i2c dev 0
 i2c read 51 80 1 ${loadaddr} # read 1 byte from 0x80 to loadaddr
-setenv android_bootmode ${loadaddr}
 if itest.b *${loadaddr} == "01" ; then
 	setenv android_bootmode 1
 fi
