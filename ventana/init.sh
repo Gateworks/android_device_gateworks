@@ -239,6 +239,22 @@ case "$board" in
 		# HWMon
 		hwmon
 		;;
+	GW553*)
+		gps_device=/dev/ttymxc3
+		# GPIO & PWM mappings
+		gpio 16 dio0
+		pwm /soc0/soc.1/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \
+			|| gpio 19 dio1
+		pwm /soc0/soc.1/2000000.aips-bus/2088000.pwm:0 pwm3 1000000 500000 1 \
+			|| gpio 17 dio2
+		pwm /soc0/soc.1/2000000.aips-bus/208c000.pwm:0 pwm4 1000000 500000 1 \
+			|| gpio 18 dio3
+		# Leds
+		led user1 frontgreen
+		led user2 frontred
+		# HWMon
+		hwmon
+		;;
 	GW54*)
 		orientation=0
 		gps_device=/dev/ttymxc4
