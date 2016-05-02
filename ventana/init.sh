@@ -345,7 +345,7 @@ case "$board" in
 		pwm /soc0/soc.0/2000000.aips-bus/2088000.pwm:0 pwm3 1000000 500000 1 \
 			|| gpio 17 dio2
 		pwm /soc0/soc.0/2000000.aips-bus/208c000.pwm:0 pwm4 1000000 500000 1 \
-			|| gpio 20 dio3
+			|| gpio 18 dio3
 		# Leds
 		led user1 frontgreen
 		led user2 frontred
