@@ -9,10 +9,8 @@
 /devices/soc0/soc.0/2200000.sata/ahci                       auto vfat defaults voldmanaged=sata:auto
 
 /dev/ubi0_0	/boot           ubifs	defaults                                defaults
-/dev/ubi0_1	/recovery       ubifs	defaults                                defaults
-/dev/ubi0_2     /system         ubifs 	ro                                      wait
-/dev/ubi0_3     /cache          ubifs   nosuid,nodev                            wait
-/dev/ubi0_4     /device         ubifs   nosuid,nodev                            wait
-/dev/ubi0_5     /data           ubifs   nosuid,nodev,nodiratime,noatime         wait
+/dev/ubi0_1     /system         ubifs 	ro                                      wait
+/dev/ubi0_2     /cache          ubifs   nosuid,nodev                            wait
+/dev/ubi0_3     /data           ubifs   nosuid,nodev,nodiratime,noatime         wait
 
 /dev/block/zram0	none	swap	defaults zramsize=314572800

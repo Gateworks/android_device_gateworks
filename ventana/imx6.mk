@@ -1,35 +1,20 @@
-$(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
-$(call inherit-product, $(SRC_TARGET_DIR)/product/generic.mk)
-$(call inherit-product, $(TOPDIR)frameworks/base/data/sounds/AllAudio.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/languages_small.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/generic_no_telephony.mk)
+#$(call inherit-product, $(TOPDIR)frameworks/base/data/sounds/AllAudio.mk)
 # overrides
 PRODUCT_BRAND := Freescale
 PRODUCT_MANUFACTURER := Freescale
 
+# Reduce number of added fonts
+MINIMAL_FONT_FOOTPRINT := true
+
 # Android infrastructures
 PRODUCT_PACKAGES += \
-	GateworksDemo				\
-	Launcher3				\
-	LiveWallpapers				\
-	LiveWallpapersPicker			\
-	MagicSmokeWallpapers			\
-	Gallery		    			\
-	SoundRecorder				\
-	Camera					\
-	LegacyCamera                            \
-	Email					\
-	FSLOta					\
-	WfdSink                                 \
-	wfd                                     \
 	libfsl_wfd.so                           \
 	fsl.imx.jar                             \
 	libfsl_hdcp_blob.so			\
 	libstagefright_hdcp.so			\
 	hwcomposer_fsl.imx6.so                  \
-	VideoEditor				\
-	FSLProfileApp				\
-	FSLProfileService			\
-	VisualizationWallpapers			\
-	CubeLiveWallpapers			\
 	PinyinIME				\
 	libjni_pinyinime        		\
 	libRS					\
@@ -66,7 +51,6 @@ PRODUCT_PACKAGES += \
 	i2cset					\
 	i2cdump					\
 	gsc_update				\
-	TSCalibration
 
 # CANbus utils
 PRODUCT_PACKAGES += \
