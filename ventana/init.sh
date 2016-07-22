@@ -197,23 +197,10 @@ hwmon() {
 
 # get board from cmdline
 for x in `cat /proc/cmdline`; do
-  [[ $x = androidboot.board=* ]] || continue
-  board="${x#androidboot.board=}"
+  [[ $x = androidboot.product.model=* ]] || continue
+  board=$(echo "${x#androidboot.product.model=}" | busybox tr a-z A-Z)
+  break
 done
-
-# as fallback get from eeprom manually
-[ -z "$board" ] && {
-	board=`dd if=/sys/bus/i2c/devices/0-0051/eeprom \
-		bs=1 count=16 skip=48 2>/dev/null | busybox hexdump -C | \
-		busybox head -1 | busybox cut -c62-77 | busybox tr -d .`
-}
-
-# determine serialnum from eeprom
-s0=$(i2cget -f -y 0 0x51 0x18)
-s1=$(i2cget -f -y 0 0x51 0x19)
-s2=$(i2cget -f -y 0 0x51 0x1a)
-s3=$(i2cget -f -y 0 0x51 0x1b)
-serial=$((s0|s1<<8|s2<<16|s3<<24))
 
 pre="${0##*/}"
 echo "$pre: Board: ${board}" > /dev/console
