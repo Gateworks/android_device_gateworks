@@ -195,6 +195,15 @@ hwmon() {
 	done
 }
 
+# Get physical memory from cmdline
+for x in `cat /proc/cmdline`; do
+  [[ $x = mem=* ]] || continue
+  mem="${x#mem=}"; mem="${mem%M}"
+  break
+done
+# Set low ram mode on 512M devices to limit memory intensive usage
+[ "$mem" -a $mem -eq 512 ] && setprop ro.config.low_ram true
+
 # get board from cmdline
 for x in `cat /proc/cmdline`; do
   [[ $x = androidboot.product.model=* ]] || continue
