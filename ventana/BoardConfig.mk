@@ -108,6 +108,12 @@ UBI_ROOT_INI := device/gateworks/ventana/ubi/ubinize.ini
 TARGET_MKUBIFS_ARGS := -F -m 2048 -e 124KiB -c 8124 -x zlib
 TARGET_UBIRAW_ARGS := -m 2048 -p 128KiB -s 2048 $(UBI_ROOT_INI)
 
+# Space limiting options for 256M devices
+# Skips first boot compilation of app code, saving time and space at cost of performance.
+PRODUCT_PROPERTY_OVERRIDES += \
+     dalvik.vm.dex2oat-filter=interpret-only \
+     dalvik.vm.image-dex2oat-filter=speed
+
 # we don't support sparse image.
 TARGET_USERIMAGES_SPARSE_EXT_DISABLED := true
 
