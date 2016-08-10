@@ -104,9 +104,12 @@ PRODUCT_COPY_FILES += device/gateworks/ventana/fstab_nand:root/fstab_nand
 PRODUCT_COPY_FILES += device/gateworks/ventana/fstab_block:root/fstab_block
 TARGET_USERIMAGES_USE_UBIFS := true
 TARGET_USERIMAGES_USE_EXT4 := true
-UBI_ROOT_INI := device/gateworks/ventana/ubi/ubinize.ini
-TARGET_MKUBIFS_ARGS := -F -m 2048 -e 124KiB -c 8124 -x zlib
-TARGET_UBIRAW_ARGS := -m 2048 -p 128KiB -s 2048 $(UBI_ROOT_INI)
+UBI_ROOT_INI_NORMAL := device/gateworks/ventana/ubi/ubinize_normal.ini
+TARGET_MKUBIFS_ARGS_NORMAL := -F -m 2048 -e 124KiB -c 8124 -x zlib
+TARGET_UBIRAW_ARGS_NORMAL := -m 2048 -p 128KiB -s 2048 $(UBI_ROOT_INI_NORMAL)
+UBI_ROOT_INI_LARGE := device/gateworks/ventana/ubi/ubinize_large.ini
+TARGET_MKUBIFS_ARGS_LARGE := -F -m 4096 -e 248KiB -c 8124 -x zlib
+TARGET_UBIRAW_ARGS_LARGE := -m 4096 -p 256KiB -s 4096 $(UBI_ROOT_INI_LARGE)
 
 # Space limiting options for 256M devices
 # Skips first boot compilation of app code, saving time and space at cost of performance.
