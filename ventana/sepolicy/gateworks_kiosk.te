@@ -1,0 +1,10 @@
+type kiosk_type, mlstrustedobject;
+permissive kiosk_type;
+allow init kiosk_type:{dir file} { read relabelfrom relabelto };
+
+#============= init ==============
+#allow init system_file:dir relabelfrom;
+#allow init system_file:file relabelfrom;
+
+#============= system_server ==============
+#allow system_server system_file:dir { write setattr };

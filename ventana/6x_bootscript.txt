@@ -178,6 +178,9 @@ if itest.s "x${android_bootmode}" == "x1"; then
   setenv bootargs "${bootargs}" "selinux=0"
 fi
 
+# for now, always disable selinux in kiosk mode until policy edits are fixed
+setenv bootargs "${bootargs}" "selinux=0"
+
 if ${fsload} ${loadaddr} ${bootdir}/uImage && ${fsload} ${rd_addr} ${bootdir}/${ramdisk}; then
 	if ${fsload} ${fdt_addr} ${bootdir}/${fdt_file}; then
 		echo Loaded DTB from ${bootdir}/${fdt_file}

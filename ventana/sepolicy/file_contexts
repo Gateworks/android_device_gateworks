@@ -14,3 +14,7 @@
 # LED
 /sys/devices/soc0/leds\.[0-9]+/leds/.*/trigger                                     u:object_r:led_device:s0
 /sys/devices/soc0/leds\.[0-9]+/leds/.*/brightness                                  u:object_r:led_device:s0
+# Kiosk Device Ownership Files
+/data/system	u:object_r:system_file:s0
+/data/system/device_owner.xml	u:object_r:system_file:s0
+/data/system/device_policies.xml	u:object_r:system_file:s0

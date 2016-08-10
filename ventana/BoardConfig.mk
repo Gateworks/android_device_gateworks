@@ -67,6 +67,7 @@ BOARD_SEPOLICY_DIRS := \
 BOARD_SEPOLICY_UNION := \
   board_setup.te \
   gateworks_util.te \
+  gateworks_kiosk.te \
   domain.te \
   system_app.te \
   system_server.te \
