@@ -5,8 +5,9 @@ verbose=0
 bootloader=1
 minmb=1500
 partoffset=1
-mnt=/tmp/$(basename $0).$$
 #LOG=$(basename $0).log
+
+unset mnt DEV mounts
 
 debug() {
   [ "$verbose" -gt 0 ] && echo "$@"
@@ -14,13 +15,23 @@ debug() {
 }
 
 cleanup() {
-  umount ${DEV}? 2>/dev/null
-  rm -rf ${mnt}
+    local ec=$?
+
+    [ -e "${mnt}" ] && {
+        printf "Unmounting ${DEV}\n"
+        umount ${DEV}? 2>/dev/null
+        local uec=$?
+        rm -rf ${mnt}
+        sync
+    }
+
+    [ ${ec} -eq 0 -a ${uec:-0} -eq 0 -a -z "$mounts" ] && \
+        printf "You may now safely remove ${BLOCK_DEV}\n"
 }
 
 error() {
   [ "$@" ] && echo "Error: $@"
-  echo "ERROR: $@" >> $LOG
+  [ "$LOG" ] && echo "ERROR: $@" >> $LOG
   cleanup
   exit 1
 }
@@ -87,10 +98,6 @@ done
 
 echo "Installing on $DEV..." ;
 
-# zero first 1MB of data
-dd if=/dev/zero of=$DEV count=1 bs=1M oflag=sync status=none
-sync
-
 [ $bootloader ] && {
   echo "Installing bootloader..."
 
@@ -112,47 +119,25 @@ sync
 
 echo "Partitioning..."
 # Partitions:
-# 1:BOOT     ext4 20MB
-# 2:RECOVERY ext4 20MB
+# 1:BOOT     ext4 20MiB
+# 2:RECOVERY ext4 20MiB
 # 3:extended partition table
 # 4:DATA     ext4 (remainder)
-# 5:SYSTEM   ext4 512MB
-# 6:CACHE    ext4 256MB
-# 7:VENDOR   ext4 10MB
-sfdisk --force --no-reread -uM $DEV >>$LOG 2>&1 << EOF
-,20,83,*
-,20,83
-,1024,E
-,,83
-,512,83
-,256,83
-,10,83
+# 5:SYSTEM   ext4 512MiB
+# 6:CACHE    ext4 256MiB
+# 7:VENDOR   ext4 10MiB
+# MiB (M) to sector (S) conversion: S = $((M * 2048))
+sfdisk --force --quiet --no-reread -uS $DEV >>$LOG 2>&1 << EOF
+$((1 * 2048)),$((20 * 2048)),L,*
+$((21 * 2048)),$((20 * 2048)),L
+$((41 * 2048)),$((1024 * 2048)),E
+$((1065 * 2048)),,L
+,$((512 * 2048)),L
+,$((256 * 2048)),L
+,$((10 * 2048)),L
 EOF
 [ $? -eq 0 ] || error "sfdisk failed"
 sync || error "sync failed"
-mkdir $mnt
-
-[ $bootloader ] && {
-  # adjust start of first partition to make room for SPL/UBOOT
-  while [ 1 ]; do
-    debug "  Reading partition table"
-    sfdisk --no-reread -d $DEV > $mnt/partitions.txt
-    [ $? -eq 0 ] && break
-  done
-  size=$(grep ${DEV}1 $mnt/partitions.txt | \
-	sed -n 's/.*size=\([ 0-9]*\).*/\1/p')
-  sblock=$((partoffset*2048)) # 512B per block
-  eblock=$((size-sblock))
-  debug "${DEV}: size=$size sblock=$sblock eblock=$eblock"
-  sed -i "s~${DEV}1.*~${DEV}1 : start=$sblock, size=$eblock, Id=83~" \
-    $mnt/partitions.txt
-  debug "  Adjusting partition start offset to ${partoffset}MiB"
-  while [ 1 ]; do
-    sfdisk --force --no-reread -L -uM $DEV >>$LOG 2>&1 < $mnt/partitions.txt
-    [ $? -eq 0 ] && break
-  done
-  sync || error "sync failed"
-}
 
 # sanity-check: verify partitions present
 for n in `seq 1 7` ; do
@@ -160,12 +145,17 @@ for n in `seq 1 7` ; do
 done
 debug "  Partitioning complete"
 
-echo "Formating partitions..."
-mkfs.ext4 -q -L BOOT ${DEV}1 || error "mkfs BOOT"
-mkfs.ext4 -q -L RECOVER ${DEV}2 || error "mkfs RECOVER"
-mkfs.ext4 -q -L CACHE ${DEV}6 || error "mkfs CACHE"
-mkfs.ext4 -q -L VENDOR ${DEV}7 || error "mkfs VENDOR"
+# Reread the partition table to avoid overwrite prompts
+blockdev --rereadpt $DEV 2>/dev/null
 
+echo "Formating partitions..."
+mkfs.ext4 -q -F -L BOOT ${DEV}1 1>/dev/null || error "mkfs BOOT"
+mkfs.ext4 -q -F -L RECOVER ${DEV}2 1>/dev/null || error "mkfs RECOVER"
+mkfs.ext4 -q -F -L CACHE ${DEV}6 1>/dev/null || error "mkfs CACHE"
+mkfs.ext4 -q -F -L VENDOR ${DEV}7 1>/dev/null || error "mkfs VENDOR"
+
+mnt=/tmp/$(basename $0).$$
+mkdir $mnt
 echo "Mounting partitions..."
 for n in 1 2 ; do
    mkdir ${mnt}/${n}
