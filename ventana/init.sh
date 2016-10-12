@@ -219,6 +219,10 @@ gps_device=
 cvbs_in=
 hdmi_in=
 case "$board" in
+	GW5903*)
+		# HWMon
+		hwmon
+		;;
 	GW551*)
 		# GPIO & PWM mappings
 		pwm /soc0/soc.0/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \
