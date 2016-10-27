@@ -61,10 +61,13 @@ TARGET_BOARD_DTS_CONFIG := \
 #  kernel_imx/drivers/net/wireless/rt2x00/rt2x00lib.ko:system/lib/modules/
 
 BOARD_SEPOLICY_DIRS := \
+  external/bluetooth/bluez/android \
   device/fsl/imx6/sepolicy \
   device/gateworks/ventana/sepolicy
 
 BOARD_SEPOLICY_UNION := \
+  bluetoothd_snoop.te \
+  bluetoothd.te \
   board_setup.te \
   gateworks_util.te \
   domain.te \
@@ -147,7 +150,6 @@ BOARD_HAS_SENSOR := true
 # Bluetooth
 #
 BOARD_HAVE_BLUETOOTH := true
-BLUETOOTH_HCI_USE_USB := true
 
 
 # GPU

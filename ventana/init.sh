@@ -448,9 +448,3 @@ gpio=$(getprop gpio.can_stby)
 	ip link set can0 type can $CAN_ARGS
 	ifconfig can0 up
 }
-
-# bluetooth RFKILL fixup
-chmod 666 /sys/class/rfkill/rfkill1/state
-echo 1 > /sys/class/bluetooth/hci0/rfkill0/state
-# USB perms
-chmod -R 777 /dev/bus/usb

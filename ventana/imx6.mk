@@ -115,6 +115,11 @@ PRODUCT_PACKAGES += \
 	libusb					\
 	libbt-hci
 
+# Bluetooth feature files + configuration
+PRODUCT_COPY_FILES += \
+	frameworks/native/data/etc/android.hardware.bluetooth.xml:system/etc/permissions/android.hardware.bluetooth.xml \
+	frameworks/native/data/etc/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml
+
 # Freescale VPU firmware files.
 PRODUCT_PACKAGES += \
 	libvpu					\
