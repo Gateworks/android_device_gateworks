@@ -114,6 +114,12 @@ TARGET_UBIRAW_ARGS := -m 4096 -p 256KiB -s 4096 $(UBI_ROOT_INI)
 # we don't support sparse image.
 TARGET_USERIMAGES_SPARSE_EXT_DISABLED := true
 
+#
+# Recovery
+#
+TARGET_RELEASETOOLS_EXTENSIONS := device/gateworks/common
+# add device-specific extensions to the updater binary
+TARGET_RECOVERY_UPDATER_LIBS += librecovery_updater_ventana
 
 #
 # Wireless
