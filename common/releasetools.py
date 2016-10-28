@@ -28,33 +28,57 @@ def InstallBoot(info):
   for filename in fnmatch.filter(info.input_zip.namelist(), "BOOT/boot/*"):
     file = info.input_zip.read(filename)
     common.ZipWriteStr(info.output_zip, filename, file)
-  # Install
-  #info.script.FormatPartition("/boot")
-  info.script.Mount("/boot")
-  info.script.UnpackPackageDir("BOOT", "/boot")
+
+  # Append edify script
+  info.script.AppendExtra("""
+stdout("Mounting /boot partition\\n");
+mount("/boot");
+stdout("Deleting /boot partition contents before unpacking OTA BOOT files\\n");
+delete_recursive("/boot/boot");
+package_extract_dir("BOOT", "/boot");
+run_program("/system/bin/sync");
+stdout("Finished updating /boot partition, unmounting...\\n");
+unmount("/boot");
+""")
+
 
 def InstallBootloader(info):
   # Copy SPL, u-boot.img to output
   for filename in fnmatch.filter(info.input_zip.namelist(), "BOOTLOADER/*"):
     file = info.input_zip.read(filename)
     common.ZipWriteStr(info.output_zip, filename, file)
-  # Install SPL, u-boot.img, and erase u-boot environment
-  info.script.AppendExtra('package_extract_file("BOOTLOADER/SPL", "/SPL");')
-  info.script.AppendExtra('package_extract_file("BOOTLOADER/u-boot.img", "/u-boot.img");')
-  info.script.AppendExtra('run_program("/sbin/kobs-ng", "init", "-v", "-x", "--search_exponent=1", "--chip_0_size=0xe00000", "--chip_0_device_path=/dev/mtd/mtd0", "/SPL");')
-  info.script.AppendExtra('run_program("/sbin/flash_erase", "/dev/mtd/mtd0", "0xe00000", "0");')
-  info.script.AppendExtra('run_program("/sbin/nandwrite", "--start=0xe00000", "--pad", "/dev/mtd/mtd0", "/u-boot.img");')
-  # Erase bootloader env (if desired)
-  #info.script.AppendExtra('run_program("/sbin/flash_erase", "/dev/mtd/mtd1", "0", "0");')
 
-# called on the final stage of recovery:
-#   wipe/install system(done for us), boot, and bootloader
-def FullOTA_InstallEnd_Ext4(info):
-  InstallBoot(info)
-  InstallBootloader(info)
-  #InstallRecovery(info)
+  # Append edify script
+  info.script.AppendExtra("""
+stdout("Extract the SPL and u-boot.img from the BOOTLOADER dir\\n");
+package_extract_file("BOOTLOADER/SPL", "/SPL");
+package_extract_file("BOOTLOADER/u-boot.img", "/u-boot.img");
+stdout("Deciding whether or not this is a block or nand flash device\\n");
+if getprop(ro.boot.mode) == block then
+    stdout("This is a block device. Now decide if this is uSD or eMMC based on model\\n");
+    if is_substring(gw5903, getprop(ro.boot.product.model)) then
+        # Board has eMMC storage, need to clear force_ro before writes
+        file_write("/sys/block/mmcblk0boot0/force_ro", "0\\n");
+        # Erase the bootloader environment (on raw device, not boot0)
+        run_program("/system/bin/dd", "if=/dev/zero", "of=/dev/block/mmcblk0", "bs=1k", "seek=709", "count=256");
+        # Flash the SPL
+        run_program("/system/bin/dd", "if=/SPL", "of=/dev/block/mmcblk0boot0", "bs=1k", "seek=1");
+        # Flash the bootloader
+        run_program("/system/bin/dd", "if=/u-boot.img", "of=/dev/block/mmcblk0boot0", "bs=1k", "seek=69");
+        file_write("/sys/block/mmcblk0boot0/force_ro", "1\\n");
+        # Sync to ensure writes
+        run_program("/system/bin/sync");
+        stdout("Finished dd'ing the SPL and U-Boot\\n");
+    endif;
+else
+    stdout("This is a flash device\\n");
+    run_program("/sbin/kobs-ng", "init", "-v", "-x", "--search_exponent=1", "--chip_0_size=0xe00000", "--chip_0_device_path=/dev/mtd/mtd0", "/SPL");
+    run_program("/sbin/flash_erase", "/dev/mtd/mtd0", "0xe00000", "0");
+    run_program("/sbin/nandwrite", "--start=0xe00000", "--pad", "/dev/mtd/mtd0", "/u-boot.img");
+endif;
+""")
 
-def FullOTA_InstallEnd_Ubifs(info):
+def FullOTA_InstallEnd(info):
   InstallBoot(info)
   InstallBootloader(info)
   #InstallRecovery(info)
