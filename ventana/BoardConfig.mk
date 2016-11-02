@@ -6,8 +6,8 @@ include device/fsl/imx6/soc/imx6dq.mk
 include device/gateworks/ventana/build_id.mk
 include device/fsl/imx6/BoardConfigCommon.mk
 include device/fsl-proprietary/gpu-viv/fsl-gpu.mk
-# 360MB system image (prune to size needed for system apps)
-BOARD_SYSTEMIMAGE_PARTITION_SIZE := 377487360
+# 512MB system image (prune to size needed for system apps)
+BOARD_SYSTEMIMAGE_PARTITION_SIZE := 536870912
 # 100MB data image (prune to size needed for pre-installed/custom data/apps)
 BOARD_USERDATAIMAGE_PARTITION_SIZE := 104857600
 
