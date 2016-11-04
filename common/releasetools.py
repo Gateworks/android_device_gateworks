@@ -53,32 +53,48 @@ def InstallBootloader(info):
 stdout("Extract the SPL and u-boot.img from the BOOTLOADER dir\\n");
 package_extract_file("BOOTLOADER/SPL", "/SPL");
 package_extract_file("BOOTLOADER/u-boot.img", "/u-boot.img");
+
 stdout("Deciding whether or not this is a block or nand flash device\\n");
 if getprop(ro.boot.mode) == block then
-    stdout("This is a block device. Now decide if this is uSD or eMMC based on model\\n");
-    if is_substring(gw5903, getprop(ro.boot.product.model)) then
-        # Board has eMMC storage, need to clear force_ro before writes
-        file_write("/sys/block/mmcblk0boot0/force_ro", "0\\n");
+    stdout("This is a block device. Now decide if this is uSD or eMMC\\n");
+    if run_program("/system/bin/ls", "/dev/block/"+getprop(ro.boot.bootdev)+"boot0") == 0 then
+        # Board booted from eMMC storage, need to clear force_ro before writing
+        file_write("/sys/block/"+getprop(ro.boot.bootdev)+"boot0/"+"force_ro", "0\\n");
         # Erase the bootloader environment (on raw device, not boot0)
-        run_program("/system/bin/dd", "if=/dev/zero", "of=/dev/block/mmcblk0", "bs=1k", "seek=709", "count=256");
+        run_program("/system/bin/dd", "if=/dev/zero", "of=/dev/block/"+getprop(ro.boot.bootdev), "bs=1k", "seek=709", "count=256");
         # Flash the SPL
-        run_program("/system/bin/dd", "if=/SPL", "of=/dev/block/mmcblk0boot0", "bs=1k", "seek=1");
+        run_program("/system/bin/dd", "if=/SPL", "of=/dev/block/"+getprop(ro.boot.bootdev)+"boot0", "bs=1k", "seek=1");
         # Flash the bootloader
-        run_program("/system/bin/dd", "if=/u-boot.img", "of=/dev/block/mmcblk0boot0", "bs=1k", "seek=69");
-        file_write("/sys/block/mmcblk0boot0/force_ro", "1\\n");
+        run_program("/system/bin/dd", "if=/u-boot.img", "of=/dev/block/"+getprop(ro.boot.bootdev)+"boot0", "bs=1k", "seek=69");
+        file_write("/sys/block/"+getprop(ro.boot.bootdev)+"boot0/"+"force_ro", "1\\n");
         # Sync to ensure writes
         run_program("/system/bin/sync");
-        stdout("Finished dd'ing the SPL and U-Boot\\n");
+    else
+        # Board has regular uSD storage
+        # Erase the bootloader environment
+        run_program("/system/bin/dd", "if=/dev/zero", "of=/dev/block/"+getprop(ro.boot.bootdev), "bs=1k", "seek=709", "count=256");
+        # Flash the SPL
+        run_program("/system/bin/dd", "if=/SPL", "of=/dev/block/"+getprop(ro.boot.bootdev), "bs=1k", "seek=1");
+        # Flash the bootloader
+        run_program("/system/bin/dd", "if=/u-boot.img", "of=/dev/block/"+getprop(ro.boot.bootdev), "bs=1k", "seek=69");
+        # Sync to ensure writes
+        run_program("/system/bin/sync");
     endif;
-else
+endif;
+
+# Even though there may have been a block boot device, the bootloader could still come
+# from flash, so overwrite that as well if it is formatted with our 3 mtd partitions
+if run_program("/system/bin/ls", "/dev/mtd/mtd0", "/dev/mtd/mtd1", "/dev/mtd/mtd2") == 0 then
     stdout("This is a flash device\\n");
     run_program("/sbin/kobs-ng", "init", "-v", "-x", "--search_exponent=1", "--chip_0_size=0xe00000", "--chip_0_device_path=/dev/mtd/mtd0", "/SPL");
     run_program("/sbin/flash_erase", "/dev/mtd/mtd0", "0xe00000", "0");
     run_program("/sbin/nandwrite", "--start=0xe00000", "--pad", "/dev/mtd/mtd0", "/u-boot.img");
 endif;
+stdout("Finished dd'ing the SPL and U-Boot\\n");
 """)
 
 def FullOTA_InstallEnd(info):
+  info.script.AppendExtra("""stdout("### BEGIN POST OTA EDIFY SCRIPT ###")""")
   InstallBoot(info)
   InstallBootloader(info)
   #InstallRecovery(info)
