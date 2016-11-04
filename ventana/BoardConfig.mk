@@ -115,6 +115,13 @@ TARGET_UBIRAW_ARGS := -m 4096 -p 256KiB -s 4096 $(UBI_ROOT_INI)
 TARGET_USERIMAGES_SPARSE_EXT_DISABLED := true
 
 #
+# Optimization
+#
+# Preoptimize all executable code which yields significantly improved boot
+# time at the cost of larger required system.img size
+WITH_DEXPREOPT := true
+
+#
 # Recovery
 #
 TARGET_RELEASETOOLS_EXTENSIONS := device/gateworks/common
