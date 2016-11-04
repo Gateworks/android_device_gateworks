@@ -118,23 +118,32 @@ echo "Installing on $DEV..." ;
 }
 
 echo "Partitioning..."
-# Partitions:
-# 1:BOOT     ext4 20MiB
-# 2:RECOVERY ext4 20MiB
-# 3:extended partition table
-# 4:DATA     ext4 (remainder)
-# 5:SYSTEM   ext4 512MiB
-# 6:CACHE    ext4 256MiB
-# 7:VENDOR   ext4 10MiB
+# ext4 Partition Sizes:
+BOOT_MiB=20
+RECOVERY_MiB=20
+SYSTEM_MiB=512
+CACHE_MiB=256
+VENDOR_MiB=10
+# Data partition claims remaining space
+
+# Extended partition size is a function of its comprising partitions
+EXTENDED_MiB=$((SYSTEM_MiB+CACHE_MiB+VENDOR_MiB))
+
+# Offset calculations:
+PARTITION_OFF=1   # SPL, U-Boot, and ENV need 1MiB before partitions
+RECOVERY_OFF=$((PARTITION_OFF+BOOT_MiB))
+EXTENDED_OFF=$((RECOVERY_OFF+RECOVERY_MiB))
+DATA_OFF=$((EXTENDED_OFF+EXTENDED_MiB))
+
 # MiB (M) to sector (S) conversion: S = $((M * 2048))
 sfdisk --force --quiet --no-reread -uS $DEV >>$LOG 2>&1 << EOF
-$((1 * 2048)),$((20 * 2048)),L,*
-$((21 * 2048)),$((20 * 2048)),L
-$((41 * 2048)),$((1024 * 2048)),E
-$((1065 * 2048)),,L
-,$((512 * 2048)),L
-,$((256 * 2048)),L
-,$((10 * 2048)),L
+$((PARTITION_OFF * 2048)),$((BOOT_MiB * 2048)),L,*
+$((RECOVERY_OFF * 2048)),$((RECOVERY_MiB * 2048)),L
+$((EXTENDED_OFF * 2048)),$((EXTENDED_MiB * 2048)),E
+$((DATA_OFF * 2048)),,L
+,$((SYSTEM_MiB * 2048)),L
+,$((CACHE_MiB * 2048)),L
+,$((VENDOR_MiB * 2048)),L
 EOF
 [ $? -eq 0 ] || error "sfdisk failed"
 sync || error "sync failed"
