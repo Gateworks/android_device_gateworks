@@ -139,8 +139,8 @@ DATA_OFF=$((EXTENDED_OFF+EXTENDED_MiB))
 sfdisk --force --quiet --no-reread -uS $DEV >>$LOG 2>&1 << EOF
 $((PARTITION_OFF * 2048)),$((BOOT_MiB * 2048)),L,*
 $((RECOVERY_OFF * 2048)),$((RECOVERY_MiB * 2048)),L
-$((EXTENDED_OFF * 2048)),$((EXTENDED_MiB * 2048)),E
-$((DATA_OFF * 2048)),,L
+$((EXTENDED_OFF * 2048)),$(($((EXTENDED_MiB * 2048))+1)),E
+$(($((DATA_OFF * 2048))+1)),,L
 ,$((SYSTEM_MiB * 2048)),L
 ,$((CACHE_MiB * 2048)),L
 ,$((VENDOR_MiB * 2048)),L
