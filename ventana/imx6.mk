@@ -53,10 +53,10 @@ PRODUCT_PACKAGES += \
 	gsc_update				\
 
 # CANbus utils
-PRODUCT_PACKAGES += \
-	candump					\
-	cansend					\
-	cangen
+# PRODUCT_PACKAGES += \
+#	candump					\
+#	cansend					\
+#	cangen
 
 # Wifi AP mode
 PRODUCT_PACKAGES += \
@@ -141,8 +141,8 @@ PRODUCT_PACKAGES += \
 	powerdebug
 
 # gpu debug tool
-PRODUCT_PACKAGES += \
-	gmem_info
+#PRODUCT_PACKAGES += \
+#	gmem_info
 
 # Omx related libs, please align to device/fsl/proprietary/omx/fsl-omx.mk
 omx_libs := \
@@ -333,7 +333,7 @@ PRODUCT_COPY_FILES +=	\
 
 
 # we have enough storage space to hold precise GC data
-PRODUCT_TAGS += dalvik.gc.type-precise
+#PRODUCT_TAGS += dalvik.gc.type-precise
 
 # for property
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES := \
