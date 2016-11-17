@@ -14,20 +14,20 @@ on init
     mkdir /misc 0700 root root
 
     # External storage mountpoints for Ventana
-    mkdir /mnt/media_rw/extsd 0700 media_rw media_rw
-    mkdir /storage/extsd 0700 root root
+    mkdir /mnt/media_rw/extsd 0766 media_rw media_rw
+    mkdir /storage/extsd 0766 root root
 
-    mkdir /mnt/media_rw/extsd1 0700 media_rw media_rw
-    mkdir /storage/extsd1 0700 root root
+    mkdir /mnt/media_rw/extsd1 0766 media_rw media_rw
+    mkdir /storage/extsd1 0766 root root
 
-    mkdir /mnt/media_rw/udisk 0700 media_rw media_rw
-    mkdir /storage/udisk 0700 root root
+    mkdir /mnt/media_rw/udisk 0766 media_rw media_rw
+    mkdir /storage/udisk 0766 root root
 
-    mkdir /mnt/media_rw/udisk1 0700 media_rw media_rw
-    mkdir /storage/udisk1 0700 root root
+    mkdir /mnt/media_rw/udisk1 0766 media_rw media_rw
+    mkdir /storage/udisk1 0766 root root
 
-    mkdir /mnt/media_rw/sata 0700 media_rw media_rw
-    mkdir /storage/sata 0700 root root
+    mkdir /mnt/media_rw/sata 0766 media_rw media_rw
+    mkdir /storage/sata 0766 root root
 
     # Assign environment vars used by framework
     export EXTERNAL_STORAGE /storage/emulated/legacy
