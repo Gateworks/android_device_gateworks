@@ -204,6 +204,9 @@ done
 # Set low ram mode on 512M devices to limit memory intensive usage
 [ "$mem" -a $mem -eq 512 ] && setprop ro.config.low_ram true
 
+# Disable strict mode checking
+setprop persist.sys.strictmode.disable true
+
 # get board from cmdline
 for x in `cat /proc/cmdline`; do
   [[ $x = androidboot.product.model=* ]] || continue
