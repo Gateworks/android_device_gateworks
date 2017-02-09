@@ -47,8 +47,8 @@ TARGET_BOARD_DTS_CONFIG := \
 # these are modules because they require firmware. If these modules are
 # needed for your application uncomment and be sure they are insmoded
 # (in the proper order with dependencies) in init.rc on fs
-#TARGET_KERNEL_MODULES := \
-#  kernel_imx/drivers/bluetooth/ath3k.ko:system/lib/modules/ \
+TARGET_KERNEL_MODULES := \
+  kernel_imx/drivers/bluetooth/ath3k.ko:system/lib/modules/
 #  kernel_imx/drivers/net/wireless/rtlwifi/rtl8723as/8723as.ko:system/lib/modules/ \
 #  kernel_imx/drivers/net/wireless/rtlwifi/rtlwifi.ko:system/lib/modules/ \
 #  kernel_imx/drivers/net/wireless/ath/ath6kl/ath6kl_core.ko:system/lib/modules/ \

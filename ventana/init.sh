@@ -451,3 +451,6 @@ gpio=$(getprop gpio.can_stby)
 	ip link set can0 type can $CAN_ARGS
 	ifconfig can0 up
 }
+
+# USB based Bluetooth HCI
+insmod /system/lib/modules/ath3k.ko
