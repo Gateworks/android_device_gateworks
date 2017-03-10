@@ -198,6 +198,7 @@ if ${fsload} ${loadaddr} ${bootdir}/uImage && ${fsload} ${rdaddr} ${bootdir}/${r
 	for fdt in $fdt_file $fdt_file1 $fdt_file2; do
 		if ${fsload} ${fdtaddr} ${bootdir}/${fdt}; then
 			echo Loaded DTB from ${bootdir}/${fdt}
+			test -n "$fixfdt" && run fixfdt
 			bootm ${loadaddr} ${rdaddr} ${fdtaddr}
 		fi
 	done
