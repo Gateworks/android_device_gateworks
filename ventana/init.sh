@@ -455,5 +455,10 @@ echo 1 > /sys/class/bluetooth/hci0/rfkill0/state
 # USB perms
 chmod -R 777 /dev/bus/usb
 
+# Enable adb over IP
+setprop service.adb.tcp.port 5555
+stop adbd
+start adbd
+
 # Clear all caches
 for i in $(busybox find -iname cache); do busybox find $i -type f -maxdepth 1 -delete; done
