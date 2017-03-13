@@ -454,3 +454,6 @@ chmod 666 /sys/class/rfkill/rfkill1/state
 echo 1 > /sys/class/bluetooth/hci0/rfkill0/state
 # USB perms
 chmod -R 777 /dev/bus/usb
+
+# Clear all caches
+for i in $(busybox find -iname cache); do busybox find $i -type f -maxdepth 1 -delete; done

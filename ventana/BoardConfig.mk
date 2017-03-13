@@ -7,7 +7,7 @@ include device/gateworks/ventana/build_id.mk
 include device/fsl/imx6/BoardConfigCommon.mk
 include device/fsl-proprietary/gpu-viv/fsl-gpu.mk
 # 360MB system image (prune to size needed for system apps)
-BOARD_SYSTEMIMAGE_PARTITION_SIZE := 427487360
+BOARD_SYSTEMIMAGE_PARTITION_SIZE := 377487360
 # 100MB data image (prune to size needed for pre-installed/custom data/apps)
 BOARD_USERDATAIMAGE_PARTITION_SIZE := 104857600
 
@@ -113,7 +113,7 @@ TARGET_MKUBIFS_ARGS_LARGE := -F -m 4096 -e 248KiB -c 8124 -x zlib
 TARGET_UBIRAW_ARGS_LARGE := -m 4096 -p 256KiB -s 4096 $(UBI_ROOT_INI_LARGE)
 
 # Default all builds to pre optimize system apps
-#WITH_DEXPREOPT := true
+WITH_DEXPREOPT := true
 
 # Space limiting options for 256M devices
 # Skips first boot compilation of some app code, saving time and space at cost of performance.
