@@ -121,6 +121,11 @@ WITH_DEXPREOPT := true
 #      dalvik.vm.dex2oat-filter=interpret-only \
 #      dalvik.vm.image-dex2oat-filter=speed
 
+
+# Miscellaneous build properties
+PRODUCT_PROPERTY_OVERRIDES += \
+	persist.sys.strictmode.disable=true
+
 # we don't support sparse image.
 TARGET_USERIMAGES_SPARSE_EXT_DISABLED := true
 
