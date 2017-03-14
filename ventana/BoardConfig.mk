@@ -177,3 +177,9 @@ USE_GPU_ALLOCATOR := true
 # Camera hal v2
 IMX_CAMERA_HAL_V2 := true
 
+#
+# Miscellaneous Properties
+#
+# Disable strict mode checking and hide red border flash
+PRODUCT_PROPERTY_OVERRIDES += \
+  persist.sys.strictmode.disable=true
