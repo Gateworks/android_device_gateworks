@@ -18,7 +18,8 @@ test -n "$part"  || part=0
 setenv nextcon 0
 setenv bootargs console=${console},${baudrate} ubi.mtd=2
 setenv loadaddr 10800000
-setenv fdtaddr 18000000
+# fdt command uses fdtaddr env var internally
+setenv fdt_addr 18000000
 setenv rdaddr  16000000
 setenv ramdisk uramdisk.img
 
@@ -196,10 +197,10 @@ fi
 # Boot in standard mode
 if ${fsload} ${loadaddr} ${bootdir}/uImage && ${fsload} ${rdaddr} ${bootdir}/${ramdisk}; then
 	for fdt in $fdt_file $fdt_file1 $fdt_file2; do
-		if ${fsload} ${fdtaddr} ${bootdir}/${fdt}; then
+		if ${fsload} ${fdt_addr} ${bootdir}/${fdt}; then
 			echo Loaded DTB from ${bootdir}/${fdt}
 			test -n "$fixfdt" && run fixfdt
-			bootm ${loadaddr} ${rdaddr} ${fdtaddr}
+			bootm ${loadaddr} ${rdaddr} ${fdt_addr}
 		fi
 	done
 	echo "Error loading device-tree"
