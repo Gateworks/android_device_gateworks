@@ -223,6 +223,26 @@ case "$board" in
 		# HWMon
 		hwmon
 		;;
+	GW560*)
+		gps_device=/dev/ttymxc4
+		# GPIO & PWM mappings
+		gpio 16 dio0
+		pwm /soc0/soc.0/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \
+			|| gpio 19 dio1
+		pwm /soc0/soc.0/2000000.aips-bus/2088000.pwm:0 pwm3 1000000 500000 1 \
+			|| gpio 17 dio2
+		gpio 20 dio3
+		# Leds
+		led user1 frontgreen
+		led user2 frontred
+		led user3 local 0
+		# HWMon
+		hwmon
+		# CANbus
+		gpio 2 can_stby 0
+		# Video Capture
+		cvbs_in=/dev/video0
+		;;
 	GW551*)
 		# GPIO & PWM mappings
 		pwm /soc0/soc.0/2000000.aips-bus/2084000.pwm:0 pwm2 1000000 500000 1 \

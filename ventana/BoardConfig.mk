@@ -36,13 +36,15 @@ TARGET_BOARD_DTS_CONFIG := \
   imx6q:imx6q-gw553x.dtb \
   imx6q:imx6q-gw552x.dtb \
   imx6q:imx6q-gw551x.dtb \
+  imx6q:imx6q-gw560x.dtb \
   imx6dl:imx6dl-gw54xx.dtb \
   imx6dl:imx6dl-gw53xx.dtb \
   imx6dl:imx6dl-gw52xx.dtb \
   imx6dl:imx6dl-gw51xx.dtb \
   imx6dl:imx6dl-gw553x.dtb \
   imx6dl:imx6dl-gw552x.dtb \
-  imx6dl:imx6dl-gw551x.dtb
+  imx6dl:imx6dl-gw551x.dtb \
+  imx6dl:imx6dl-gw560x.dtb
 
 # these are modules because they require firmware. If these modules are
 # needed for your application uncomment and be sure they are insmoded
