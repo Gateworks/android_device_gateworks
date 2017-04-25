@@ -218,12 +218,14 @@ orientation=
 gps_device=
 cvbs_in=
 hdmi_in=
+sensor=fsl
 case "$board" in
 	GW5903*)
 		# HWMon
 		hwmon
 		;;
-	GW560*)
+	GW56*)
+		sensor=stm
 		gps_device=/dev/ttymxc4
 		# GPIO & PWM mappings
 		gpio 16 dio0
@@ -274,6 +276,7 @@ case "$board" in
 		hwmon
 		;;
 	GW553*)
+		sensor=stm
 		gps_device=/dev/ttymxc3
 		# GPIO & PWM mappings
 		gpio 16 dio0
@@ -425,7 +428,10 @@ elif [ "${hdmi_in}" ]; then
 	#setprop back_camera_name uvc
 fi
 
-# Accelerometer/Magnetometer physical orientation
+# Accelerometer/Magnetometer
+[ "$sensor" ] && setprop ro.hardware.sensors $sensor
+
+# physical orientation
 [ "$orientation" -a -d /sys/bus/i2c/devices/2-001e ] && {
 	i=0
 	while [ 1 ]; do
