@@ -99,7 +99,8 @@ PRODUCT_PACKAGES += \
 
 # imx6 Hardware HAL libs.
 PRODUCT_PACKAGES += \
-	sensors.ventana \
+	sensors.fsl				\
+	sensors.stm				\
 	overlay.imx6				\
 	lights.imx6				\
 	gralloc.imx6				\
