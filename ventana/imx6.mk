@@ -128,6 +128,7 @@ PRODUCT_COPY_FILES += \
 	linux-firmware/ar3k/AthrBT_0x01020201.dfu:system/etc/firmware/ar3k/AthrBT_0x01020201.dfu \
 	linux-firmware/ar3k/AthrBT_0x11020000.dfu:system/etc/firmware/ar3k/AthrBT_0x11020000.dfu \
 	linux-firmware/ar3k/AthrBT_0x31010000.dfu:system/etc/firmware/ar3k/AthrBT_0x31010000.dfu \
+	linux-firmware/ar3k/AthrBT_0x31010100.dfu:system/etc/firmware/ar3k/AthrBT_0x31010000.dfu \
 	linux-firmware/ar3k/AthrBT_0x41020000.dfu:system/etc/firmware/ar3k/AthrBT_0x41020000.dfu \
 	linux-firmware/ar3k/ramps_0x01020001_26.dfu:system/etc/firmware/ar3k/ramps_0x01020001_26.dfu \
 	linux-firmware/ar3k/ramps_0x01020200_26.dfu:system/etc/firmware/ar3k/ramps_0x01020200_26.dfu \
@@ -136,6 +137,7 @@ PRODUCT_COPY_FILES += \
 	linux-firmware/ar3k/ramps_0x01020201_40.dfu:system/etc/firmware/ar3k/ramps_0x01020201_40.dfu \
 	linux-firmware/ar3k/ramps_0x11020000_40.dfu:system/etc/firmware/ar3k/ramps_0x11020000_40.dfu \
 	linux-firmware/ar3k/ramps_0x31010000_40.dfu:system/etc/firmware/ar3k/ramps_0x31010000_40.dfu \
+	linux-firmware/ar3k/ramps_0x31010100_40.dfu:system/etc/firmware/ar3k/ramps_0x31010000_40.dfu \
 	linux-firmware/ar3k/ramps_0x41020000_40.dfu:system/etc/firmware/ar3k/ramps_0x41020000_40.dfu
 
 # Freescale VPU firmware files.
