@@ -74,6 +74,9 @@ else
 			setenv ptype "LVDS"
 		elif itest.s "x${p}" == "xDLC700JMGT4" ; then
 			setenv ptype "LVDS"
+		elif itest.s "x${p}" == "xDLC0700XDP21LF" ; then
+			setenv ptype "LVDS"
+			setenv fixfdt "${fixfdt}; fdt resize; fdt rm /soc/aips-bus@02100000/i2c@021a8000/edt-ft5x06@38 invert"
 		elif itest.s "x${p}" == "xDLC800FIGT3" ; then
 			setenv ptype "LVDS"
 		elif itest.s "x${p}" == "xAUOG101EVN010" ; then
